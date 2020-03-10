@@ -33,7 +33,7 @@ namespace Landing.API.Controllers
                 Email = request.Email,
                 Message = request.Message,
                 SendTime = DateTime.UtcNow,
-                SenderIp = HttpContext.Connection.RemoteIpAddress.ToString()
+                SenderIp = HttpContext.Request.Headers["X-Real-IP"]
             };
             landingDbContext.ContactUsMessages.Add(createdModel);
             await landingDbContext.SaveChangesAsync();
