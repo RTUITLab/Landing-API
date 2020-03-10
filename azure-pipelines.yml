@@ -26,3 +26,12 @@ jobs:
         PathtoPublish: '$(Build.ArtifactStagingDirectory)'
         ArtifactName: 'landing-api-build'
         publishLocation: 'Container'
+
+  - job: DeployFiles
+    steps:
+    - task: PublishBuildArtifacts@1
+      displayName: publish landing-api-build
+      inputs:
+        PathtoPublish: deploy
+        ArtifactName: 'landing-api-deploy'
+        publishLocation: 'Container'
