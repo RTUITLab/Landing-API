@@ -27,13 +27,18 @@ namespace Landing.API.Controllers
         [HttpPost]
         public async Task<ContactUsResponse> Post(CreateContactUsRequest request)
         {
+            var proxyIp = HttpContext.Request.Headers["X-Real-IP"].ToString();
+            var senderIp = string.IsNullOrEmpty(proxyIp) ?
+                HttpContext.Connection.RemoteIpAddress.ToString()
+                :
+                proxyIp;
             var createdModel = new Models.ContactUsMessage
             {
                 Name = request.Name,
                 Email = request.Email,
                 Message = request.Message,
                 SendTime = DateTime.UtcNow,
-                SenderIp = HttpContext.Connection.RemoteIpAddress.ToString()
+                SenderIp = senderIp
             };
             landingDbContext.ContactUsMessages.Add(createdModel);
             await landingDbContext.SaveChangesAsync();
