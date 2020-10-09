@@ -1,37 +1,36 @@
-trigger:
-- master
-- develop
-
 name: $(BuildID)-$(Build.SourceBranchName)
 
 pool:
   vmImage: 'ubuntu-latest'
 
-jobs:
-  - job: Build
+stages:
+- stage: build
+  jobs:
+  - job: buildApi
     steps:
-    - task: DotNetCoreCLI@2
-      displayName: Publish api
+    - task: Cake@2
       inputs:
-        command: 'publish'
-        publishWebProjects: false
-        projects: 'Landing.API/Landing.API.csproj'
-        arguments: '-c Release -o $(Build.ArtifactStagingDirectory)'
-        zipAfterPublish: false
-        modifyOutputPath: false
+        script: 'build.cake'
+        target: 'PublishApi'
+        verbosity: 'Verbose'
+    - publish: deploy
+      artifact: api-build
 
-    - task: PublishBuildArtifacts@1
-      displayName: publish landing-api-build
-      inputs:
-        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-        ArtifactName: 'landing-api-build'
-        publishLocation: 'Container'
-
-  - job: DeployFiles
+- stage: dockerImage
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+  jobs:
+  - job: dockerBuild
     steps:
-    - task: PublishBuildArtifacts@1
-      displayName: publish landing-api-build
+    - download: current
+      artifact: api-build
+      displayName: Download api-build
+    - task: Docker@2
       inputs:
-        PathtoPublish: deploy
-        ArtifactName: 'landing-api-deploy'
-        publishLocation: 'Container'
+        containerRegistry: 'rtuitlab connection by admin'
+        repository: 'rtuitlab/landing-api'
+        command: 'buildAndPush'
+        Dockerfile: '$(Pipeline.Workspace)/api-build/Dockerfile'
+        buildContext: '$(Pipeline.Workspace)/api-build'
+        tags: |
+          $(Build.BuildId)
+          latest
