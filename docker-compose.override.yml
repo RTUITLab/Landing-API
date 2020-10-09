@@ -2,12 +2,12 @@ version: '3.8'
 
 services:
     api:
-      build: deploy
+      build: ${BACK_CONTEXT:-.}/deploy
       environment:
         - ASPNETCORE_ENVIRONMENT=Development
         - ConnectionStrings__POSTGRES=User ID=postgres;Password=password;Server=postgres;Port=5432;Database=itlab-db;Integrated Security=true;
       ports:
-        - 5000:5000
+        - 5001:5001
     postgres:
         image: postgres:13-alpine
         environment:

@@ -4,5 +4,5 @@ WORKDIR /app
 
 COPY api-build .
 
-ENV ASPNETCORE_URLS=http://*:5000
+ENV ASPNETCORE_URLS=http://*:5001
 CMD dotnet Landing.API.dll
