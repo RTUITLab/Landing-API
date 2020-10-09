@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+    api:
+      build: deploy
+      environment:
+        - ASPNETCORE_ENVIRONMENT=Development
+        - ConnectionStrings__POSTGRES=User ID=postgres;Password=password;Server=postgres;Port=5432;Database=itlab-db;Integrated Security=true;
+      ports:
+        - 5000:5000
+    postgres:
+        image: postgres:13-alpine
+        environment:
+            - POSTGRES_PASSWORD=password
+        deploy:
+            resources:
+                limits:
+                    cpus: '0.50'
+                    memory: 300M
+        logging:
+            driver: "json-file"
+            options:
+                max-size: "200k"
+                max-file: "10"

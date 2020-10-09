@@ -338,3 +338,9 @@ ASALocalRun/
 
 # BeatPulse healthcheck temp database
 healthchecksdb
+
+# cake tools
+tools
+
+# deploy folder
+deploy/api-build

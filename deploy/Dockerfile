@@ -2,6 +2,7 @@ FROM mcr.microsoft.com/dotnet/core/aspnet:3.1
 
 WORKDIR /app
 
-COPY Landing-API/landing-api-build .
+COPY api-build .
 
+ENV ASPNETCORE_URLS=http://*:5000
 CMD dotnet Landing.API.dll
