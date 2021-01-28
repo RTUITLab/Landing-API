@@ -1,4 +1,5 @@
-﻿using Landing.API.Models;
+﻿using Landing.API.Configure;
+using Landing.API.Models;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -16,16 +17,19 @@ namespace Landing.API.Services
     public class ScrubProjectsService : BackgroundService
     {
         private readonly ProjectsInfoCache projectsCache;
-        private readonly IOptions<GitHubOptinos> options;
+        private readonly IOptions<ScrubOptions> scrubOptions;
+        private readonly IOptions<GitHubOptinos> githubOptions;
         private readonly ILogger<ScrubProjectsService> logger;
 
         public ScrubProjectsService(
             ProjectsInfoCache projectsCache,
-            IOptions<GitHubOptinos> options,
+            IOptions<ScrubOptions> scrubOptions,
+            IOptions<GitHubOptinos> githubOptions,
             ILogger<ScrubProjectsService> logger)
         {
             this.projectsCache = projectsCache;
-            this.options = options;
+            this.scrubOptions = scrubOptions;
+            this.githubOptions = githubOptions;
             this.logger = logger;
         }
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -35,14 +39,14 @@ namespace Landing.API.Services
                 try
                 {
                     stoppingToken.ThrowIfCancellationRequested();
-                    var client = new GitHubClient(new ProductHeaderValue(options.Value.ProductHeader));
-                    if (string.IsNullOrEmpty(options.Value.OAuthToken))
+                    var client = new GitHubClient(new ProductHeaderValue(githubOptions.Value.ProductHeader));
+                    if (string.IsNullOrEmpty(githubOptions.Value.OAuthToken))
                     {
                         logger.LogWarning("Using github unauthenticated client with limits, please provide OAuthToken token in options");
                     }
                     else
                     {
-                        client.Credentials = new Credentials(options.Value.OAuthToken);
+                        client.Credentials = new Credentials(githubOptions.Value.OAuthToken);
                     }
                     await ScrubProjects(client, stoppingToken);
                 }
@@ -54,7 +58,7 @@ namespace Landing.API.Services
                 {
                     logger.LogError(ex, "Unhandled error on github scrab");
                 }
-                await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
+                await Task.Delay(scrubOptions.Value.Delay, stoppingToken);
             }
         }
 

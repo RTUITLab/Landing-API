@@ -50,5 +50,5 @@ stages:
               inputs:
                 sshEndpoint: 'swarm manager'
                 runOptions: 'commands'
-                commands: 'docker service update --image rtuitlab/landing-api:$(Build.BuildId) landing-service_api'
+                commands: 'docker service update --image rtuitlab/landing-api:$(Build.BuildId) landing_api'
                 readyTimeout: '20000'
