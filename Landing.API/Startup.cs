@@ -2,8 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Landing.API.Configure;
 using Landing.API.Database;
+using Landing.API.Formatting;
+using Landing.API.Models;
+using Landing.API.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -28,13 +32,17 @@ namespace Landing.API
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.Configure<GitHubOptinos>(Configuration.GetSection(nameof(GitHubOptinos)));
+
             services.AddControllers();
 
             services.AddDbContext<LandingDbContext>(options =>
                     options.UseNpgsql(Configuration.GetConnectionString("POSTGRES"), npgsql => npgsql.MigrationsAssembly("Database")));
-
+            services.AddAutoMapper(typeof(ResponseProfile));
             services.AddWebAppConfigure()
                 .AddTransientConfigure<MigrationWork>();
+            services.AddSingleton<ProjectsInfoCache>();
+            services.AddHostedService<ScrabProjectsService>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

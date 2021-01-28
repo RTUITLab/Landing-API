@@ -3,13 +3,21 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29827.131
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Landing.API", "Landing.API\Landing.API.csproj", "{E3324B9F-7FDF-4746-9C03-14DD15E9711C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Landing.API", "Landing.API\Landing.API.csproj", "{E3324B9F-7FDF-4746-9C03-14DD15E9711C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PublicAPI", "PublicAPI\PublicAPI.csproj", "{4B5E5BAC-6B09-4D08-9C1D-4B212EF50FEA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PublicAPI", "PublicAPI\PublicAPI.csproj", "{4B5E5BAC-6B09-4D08-9C1D-4B212EF50FEA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Database", "Database\Database.csproj", "{997208CD-F611-4C9E-9A15-60D5821F9361}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Database", "Database\Database.csproj", "{997208CD-F611-4C9E-9A15-60D5821F9361}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Models", "Models\Models.csproj", "{25E45246-E13A-45AD-BBD5-2C4F0FAD233D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Models", "Models\Models.csproj", "{25E45246-E13A-45AD-BBD5-2C4F0FAD233D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{21EB1CC4-507E-42C0-A717-73D6585B833D}"
+	ProjectSection(SolutionItems) = preProject
+		docker-compose.override.yml = docker-compose.override.yml
+		docker-compose.production.yml = docker-compose.production.yml
+		docker-compose.yml = docker-compose.yml
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

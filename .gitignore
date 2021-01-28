@@ -344,3 +344,7 @@ tools
 
 # deploy folder
 deploy/api-build
+
+Landing.API/appsettings.Local.json
+
+stack.yml
