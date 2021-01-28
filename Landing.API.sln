@@ -13,6 +13,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Models", "Models\Models.csp
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{21EB1CC4-507E-42C0-A717-73D6585B833D}"
 	ProjectSection(SolutionItems) = preProject
+		azure-pipelines.yml = azure-pipelines.yml
 		docker-compose.override.yml = docker-compose.override.yml
 		docker-compose.production.yml = docker-compose.production.yml
 		docker-compose.yml = docker-compose.yml

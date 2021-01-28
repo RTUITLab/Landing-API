@@ -42,7 +42,7 @@ namespace Landing.API
             services.AddWebAppConfigure()
                 .AddTransientConfigure<MigrationWork>();
             services.AddSingleton<ProjectsInfoCache>();
-            services.AddHostedService<ScrabProjectsService>();
+            services.AddHostedService<ScrubProjectsService>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
