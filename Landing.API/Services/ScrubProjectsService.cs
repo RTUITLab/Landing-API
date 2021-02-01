@@ -110,7 +110,7 @@ namespace Landing.API.Services
             try
             {
                 var info = LandingFileParser.Parse(fileContent);
-                info.Date = repo.UpdatedAt.ToString("dd/mm/yyyy");
+                info.Date = repo.UpdatedAt.ToString("dd/MM/yyyy");
                 info.FullName = repo.FullName;
                 return info;
             }
