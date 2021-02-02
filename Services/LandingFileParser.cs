@@ -12,22 +12,32 @@ namespace Landing.API.Services
 {
     public class LandingFileParser
     {
-        private static readonly Dictionary<string, Action<ProjectInfo, MarkdownBlock>> handlers = new Dictionary<string, Action<ProjectInfo, MarkdownBlock>>
+        private readonly Dictionary<string, Action<ProjectInfo, MarkdownBlock>> handlers;
+
+
+        private readonly string repoFullName;
+        private readonly string defaultBranch;
+
+        public LandingFileParser(string repoName, string defaultBranch)
         {
-            { " Title", (i, b) => i.Title = ParseTextParagraph(b) },
-            { " Description", HandleDescription },
-            { " Images", HandleImages },
-            { " Videos", (i, b) => i.Videos = ParseVideos(b) },
-            { " Tech", (i, b) => i.Tech = ParseStringListOrParagraph(b) },
-            { " Tags", (i, b) => i.Tags = ParseStringListOrParagraph(b) },
-            { " Developers", (i, b) => i.Developers = ParseStringListOrParagraph(b) },
-            { " Site", (i, b) => i.Site = ParseTextParagraph(b) },
-            { " SourceCode", HandleSourceCode },
-        };
+            this.repoFullName = repoName;
+            this.defaultBranch = defaultBranch;
+            handlers = new Dictionary<string, Action<ProjectInfo, MarkdownBlock>>
+            {
+                { " Title", (i, b) => i.Title = ParseTextParagraph(b) },
+                { " Description", HandleDescription },
+                { " Images", HandleImages },
+                { " Videos", (i, b) => i.Videos = ParseVideos(b) },
+                { " Tech", (i, b) => i.Tech = ParseStringListOrParagraph(b) },
+                { " Tags", (i, b) => i.Tags = ParseStringListOrParagraph(b) },
+                { " Developers", (i, b) => i.Developers = ParseStringListOrParagraph(b) },
+                { " Site", (i, b) => i.Site = ParseTextParagraph(b) },
+                { " SourceCode", HandleSourceCode },
+            };
+        }
 
 
-
-        public static ProjectInfo Parse(string markdown)
+        public ProjectInfo Parse(string markdown)
         {
             MarkdownDocument md = new MarkdownDocument();
             md.Parse(markdown);
@@ -91,7 +101,7 @@ namespace Landing.API.Services
             throw new ParsingException($"block is {block.Type} but must be {MarkdownBlockType.Paragraph}");
         }
 
-        private static void HandleImages(ProjectInfo info, MarkdownBlock block)
+        private void HandleImages(ProjectInfo info, MarkdownBlock block)
         {
             if (block is ListBlock list)
             {
@@ -99,6 +109,13 @@ namespace Landing.API.Services
                     ((i.Blocks.Single() as ParagraphBlock)
                     .Inlines.Single() as ImageInline)
                     .RenderUrl).ToArray();
+            }
+            for (int i = 0; i < info.Images.Length; i++)
+            {
+                if (!info.Images[i].StartsWith("http"))
+                {
+                    info.Images[i] = $"https://raw.githubusercontent.com/{repoFullName}/{defaultBranch}/{info.Images[i].TrimStart('/')}";
+                }
             }
         }
 

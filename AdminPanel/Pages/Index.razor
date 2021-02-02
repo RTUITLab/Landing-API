@@ -4,37 +4,180 @@
 
 <div class="row">
     <div class="col-6">
-        <textarea rows="30" style="width: 100%;" @oninput="HandleOnChange"></textarea>
+        <label>
+            @if (string.IsNullOrEmpty(repoName))
+            {
+                <div class="alert alert-danger" role="alert">Repo name</div>
+            }
+            else
+            {
+                <div>Repo name</div>
+            }
+            <input @oninput="HandleOnChangeRepoName" value="@repoName" />
+        </label>
+        <label>
+            @if (string.IsNullOrEmpty(defaultBranch))
+            {
+                <div class="alert alert-danger" role="alert">Default branch</div>
+            }
+            else
+            {
+                <div>Default branch</div>
+            }
+            <input @oninput="HandleOnChangeDefaultBranch" value="@defaultBranch" />
+        </label>
+        <textarea rows="30" style="width: 100%;" @oninput="HandleOnChangeMarkdown"></textarea>
     </div>
     <div class="col-6">
-        <div style="white-space:pre-wrap;">@result</div>
-        @if(!string.IsNullOrEmpty(error))
+        @if (error != null)
         {
-            <div style="white-space:pre;" class="alert alert-error" role="alert">@error</div>
+            <h3>Error</h3>
+            <div style="white-space:pre-wrap;" class="alert alert-danger" role="alert">@error.Message</div>
+            <div style="white-space:pre-wrap;" class="alert alert-danger" role="alert">@error.StackTrace</div>
+        }
+        @if (result != null)
+        {
+            <h4>Title</h4>
+            @if (string.IsNullOrEmpty(result.Title))
+            {
+                <div class="alert alert-danger" role="alert">NULL</div>
+            }
+            else
+            {
+                <p>@result.Title</p>
+            }
+
+            <h4>Description</h4>
+            @if (string.IsNullOrEmpty(result.Title))
+            {
+                <div class="alert alert-danger" role="alert">NULL</div>
+            }
+            else
+            {
+                <p style="white-space:pre-wrap;">@result.Description</p>
+            }
+
+            <h4>Images</h4>
+            @if (result.Images == null || result.Images.Length == 0)
+            {
+                <div class="alert alert-warning" role="alert">Empty</div>
+            }
+            else
+            {
+                foreach (var image in result.Images)
+                {
+                    <p>@image </p>
+                    <img style="max-width: 100%;" src="@image" />
+                }
+            }
+
+            <h4>Videos</h4>
+            @if (result.Videos == null || result.Videos.Length == 0)
+            {
+                <div class="alert alert-warning" role="alert">Empty</div>
+            }
+            else
+            {
+                <p style="white-space:pre-wrap;">@(Serialize(result.Videos))</p>
+            }
+
+            <h4>Developers</h4>
+            @if (result.Developers == null || result.Developers.Length == 0)
+            {
+                <div class="alert alert-warning" role="alert">Empty</div>
+            }
+            else
+            {
+                <p style="white-space:pre-wrap;">@(Serialize(result.Developers))</p>
+            }
+
+            <h4>Tech</h4>
+            @if (result.Tech == null || result.Tech.Length == 0)
+            {
+                <div class="alert alert-warning" role="alert">Empty</div>
+            }
+            else
+            {
+                <p style="white-space:pre-wrap;">@(Serialize(result.Tech))</p>
+            }
+
+            <h4>Site</h4>
+            @if (string.IsNullOrEmpty(result.Site))
+            {
+                <div class="alert alert-warning" role="alert">Empty</div>
+            }
+            else
+            {
+                <p style="white-space:pre-wrap;">@result.Site</p>
+            }
+
+            <h4>SourceCode</h4>
+            @if (result.SourceCode == null || result.SourceCode.Length == 0)
+            {
+                <div class="alert alert-warning" role="alert">Empty</div>
+            }
+            else
+            {
+                <p style="white-space:pre-wrap;">@(Serialize(result.SourceCode))</p>
+            }
         }
     </div>
 </div>
 @code {
-    private string result;
-    private string error;
-    private Task HandleOnChange(ChangeEventArgs args)
+
+    private string repoName;
+    private string defaultBranch = "master";
+    private string markdown;
+
+    private Landing.API.Models.ProjectInfo result;
+    private Exception error;
+
+    private System.Text.Json.JsonSerializerOptions serializerOptions = new System.Text.Json.JsonSerializerOptions
     {
-        error = "";
-        result = "";
+        Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+        WriteIndented = true
+    };
+
+    private Task HandleOnChangeRepoName(ChangeEventArgs args)
+    {
+        repoName = args.Value.ToString();
+        Parse();
+        return Task.CompletedTask;
+    }
+
+    private Task HandleOnChangeDefaultBranch(ChangeEventArgs args)
+    {
+        defaultBranch = args.Value.ToString();
+        Parse();
+        return Task.CompletedTask;
+    }
+
+    private Task HandleOnChangeMarkdown(ChangeEventArgs args)
+    {
+        markdown = args.Value.ToString();
+        Parse();
+        return Task.CompletedTask;
+    }
+
+    private void Parse()
+    {
+        result = null;
+        error = null;
         try
         {
-            var markdown = LandingFileParser.Parse(args.Value.ToString());
-            result = System.Text.Json.JsonSerializer.Serialize(markdown, new System.Text.Json.JsonSerializerOptions
+            if (!string.IsNullOrEmpty(markdown))
             {
-                Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
-                WriteIndented = true
-            });
+                result = new LandingFileParser($"RTUITLab/{repoName}", defaultBranch).Parse(markdown);
+            }
         }
         catch (Exception ex)
         {
-            error = ex.Message;
+            error = ex;
         }
+    }
 
-        return Task.CompletedTask;
+    private string Serialize(object value)
+    {
+        return System.Text.Json.JsonSerializer.Serialize(value, serializerOptions);
     }
 }

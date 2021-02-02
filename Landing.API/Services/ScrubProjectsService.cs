@@ -109,9 +109,8 @@ namespace Landing.API.Services
 
             try
             {
-                var info = LandingFileParser.Parse(fileContent);
+                var info = new LandingFileParser(repo.FullName, repo.DefaultBranch).Parse(fileContent);
                 info.Date = repo.UpdatedAt.ToString("dd/MM/yyyy");
-                info.FullName = repo.FullName;
                 return info;
             }
             catch (Exception ex)
