@@ -24,7 +24,7 @@ namespace Landing.API.Services
             { " SourceCode", HandleSourceCode },
         };
 
-        
+
 
         public static ProjectInfo Parse(string markdown)
         {
