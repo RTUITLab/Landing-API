@@ -109,7 +109,7 @@ namespace Landing.API.Services
 
             try
             {
-                var info = new LandingFileParser(repo.FullName, repo.DefaultBranch).Parse(fileContent);
+                var info = await new LandingFileParser(repo.FullName, repo.DefaultBranch).ParseAsync(fileContent);
                 info.Date = repo.UpdatedAt.ToString("dd/MM/yyyy");
                 return info;
             }

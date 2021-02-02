@@ -5,6 +5,7 @@ using Microsoft.Toolkit.Parsers.Markdown.Inlines;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -12,32 +13,31 @@ namespace Landing.API.Services
 {
     public class LandingFileParser
     {
-        private readonly Dictionary<string, Action<ProjectInfo, MarkdownBlock>> handlers;
+        private readonly Dictionary<string, Func<ProjectInfo, MarkdownBlock, ValueTask>> handlers;
 
 
         private readonly string repoFullName;
         private readonly string defaultBranch;
-
         public LandingFileParser(string repoName, string defaultBranch)
         {
             this.repoFullName = repoName;
             this.defaultBranch = defaultBranch;
-            handlers = new Dictionary<string, Action<ProjectInfo, MarkdownBlock>>
+            handlers = new Dictionary<string, Func<ProjectInfo, MarkdownBlock, ValueTask>>
             {
-                { " Title", (i, b) => i.Title = ParseTextParagraph(b) },
+                { " Title", async (i, b) => i.Title = await ParseTextParagraph(b) },
                 { " Description", HandleDescription },
-                { " Images", HandleImages },
-                { " Videos", (i, b) => i.Videos = ParseVideos(b) },
-                { " Tech", (i, b) => i.Tech = ParseStringListOrParagraph(b) },
-                { " Tags", (i, b) => i.Tags = ParseStringListOrParagraph(b) },
-                { " Developers", (i, b) => i.Developers = ParseStringListOrParagraph(b) },
-                { " Site", (i, b) => i.Site = ParseTextParagraph(b) },
+                { " Images", HandleImagesAsync },
+                { " Videos", async (i, b) => i.Videos = await ParseVideos(b) },
+                { " Tech",async  (i, b) => i.Tech = await ParseStringListOrParagraph(b) },
+                { " Tags", async (i, b) => i.Tags = await ParseStringListOrParagraph(b) },
+                { " Developers", async (i, b) => i.Developers = await ParseStringListOrParagraph(b) },
+                { " Site", async (i, b) => i.Site = await ParseTextParagraph(b) },
                 { " SourceCode", HandleSourceCode },
             };
         }
 
 
-        public ProjectInfo Parse(string markdown)
+        public async ValueTask<ProjectInfo> ParseAsync(string markdown)
         {
             MarkdownDocument md = new MarkdownDocument();
             md.Parse(markdown);
@@ -57,8 +57,7 @@ namespace Landing.API.Services
                     {
                         try
                         {
-
-                            handlers[hContent](info, nextBlock);
+                            await handlers[hContent](info, nextBlock);
                         }
                         catch (ParsingException ex)
                         {
@@ -70,7 +69,7 @@ namespace Landing.API.Services
             return info;
         }
 
-        private static void HandleDescription(ProjectInfo info, MarkdownBlock block)
+        private static ValueTask HandleDescription(ProjectInfo info, MarkdownBlock block)
         {
             if (block is ParagraphBlock paragraph)
             {
@@ -80,8 +79,9 @@ namespace Landing.API.Services
             {
                 info.Description = code.Text;
             }
+            return default;
         }
-        private static void HandleSourceCode(ProjectInfo info, MarkdownBlock block)
+        private static ValueTask HandleSourceCode(ProjectInfo info, MarkdownBlock block)
         {
             if (block is TableBlock table)
             {
@@ -90,18 +90,19 @@ namespace Landing.API.Services
                     .Select(p => new SourceCodeLink { Name = p.name, Link = p.link })
                     .ToArray();
             }
+            return default;
         }
 
-        private static string ParseTextParagraph(MarkdownBlock block)
+        private static ValueTask<string> ParseTextParagraph(MarkdownBlock block)
         {
             if (block is ParagraphBlock paragraph)
             {
-                return paragraph.ReadAllInline().Trim();
+                return new ValueTask<string>(paragraph.ReadAllInline().Trim());
             }
             throw new ParsingException($"block is {block.Type} but must be {MarkdownBlockType.Paragraph}");
         }
 
-        private void HandleImages(ProjectInfo info, MarkdownBlock block)
+        private ValueTask HandleImagesAsync(ProjectInfo info, MarkdownBlock block)
         {
             if (block is ListBlock list)
             {
@@ -114,36 +115,40 @@ namespace Landing.API.Services
             {
                 if (!info.Images[i].StartsWith("http"))
                 {
-                    info.Images[i] = $"https://raw.githubusercontent.com/{repoFullName}/{defaultBranch}/{info.Images[i].TrimStart('/')}";
+                    var rawContent = $"https://github.com/{repoFullName}/raw/{defaultBranch}/{info.Images[i].TrimStart('/')}";
+                    info.Images[i] = rawContent;
                 }
             }
+            return default;
         }
 
-        private static string[] ParseStringList(MarkdownBlock block)
+        private static ValueTask<string[]> ParseStringList(MarkdownBlock block)
         {
             if (block is ListBlock list)
             {
-                return list.Items.Select(i =>
-                    (i.Blocks.Single() as ParagraphBlock).ReadAllInline()).ToArray();
+                return new ValueTask<string[]>(
+                    list.Items.Select(i =>
+                    (i.Blocks.Single() as ParagraphBlock).ReadAllInline())
+                    .ToArray());
             }
             throw new ParsingException($"block is {block.Type} but must be {MarkdownBlockType.List}");
         }
 
-        private static string[] ParseStringListOrParagraph(MarkdownBlock block)
+        private static async ValueTask<string[]> ParseStringListOrParagraph(MarkdownBlock block)
         {
             try
             {
-                return ParseStringList(block);
+                return await ParseStringList(block);
             }
             catch (ParsingException)
             {
-                return new string[] { ParseTextParagraph(block) };
+                return new string[] { await ParseTextParagraph(block) };
             }
         }
         private static readonly Regex youtubeRegex = new Regex("https://youtu.be/(?<id>[^/]+)");
-        private static string[] ParseVideos(MarkdownBlock block)
+        private static async ValueTask<string[]> ParseVideos(MarkdownBlock block)
         {
-            var videos = ParseStringListOrParagraph(block);
+            var videos = await ParseStringListOrParagraph(block);
             for (int i = 0; i < videos.Length; i++)
             {
                 var match = youtubeRegex.Match(videos[i]);

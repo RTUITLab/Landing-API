@@ -138,28 +138,25 @@
         WriteIndented = true
     };
 
-    private Task HandleOnChangeRepoName(ChangeEventArgs args)
+    private async Task HandleOnChangeRepoName(ChangeEventArgs args)
     {
         repoName = args.Value.ToString();
-        Parse();
-        return Task.CompletedTask;
+        await Parse();
     }
 
-    private Task HandleOnChangeDefaultBranch(ChangeEventArgs args)
+    private async Task HandleOnChangeDefaultBranch(ChangeEventArgs args)
     {
         defaultBranch = args.Value.ToString();
-        Parse();
-        return Task.CompletedTask;
+        await Parse();
     }
 
-    private Task HandleOnChangeMarkdown(ChangeEventArgs args)
+    private async Task HandleOnChangeMarkdown(ChangeEventArgs args)
     {
         markdown = args.Value.ToString();
-        Parse();
-        return Task.CompletedTask;
+        await Parse();
     }
 
-    private void Parse()
+    private async ValueTask Parse()
     {
         result = null;
         error = null;
@@ -167,7 +164,7 @@
         {
             if (!string.IsNullOrEmpty(markdown))
             {
-                result = new LandingFileParser($"RTUITLab/{repoName}", defaultBranch).Parse(markdown);
+                result = await new LandingFileParser($"RTUITLab/{repoName}", defaultBranch).ParseAsync(markdown);
             }
         }
         catch (Exception ex)
