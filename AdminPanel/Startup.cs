@@ -39,7 +39,7 @@ namespace AdminPanel
             {
                 app.UseExceptionHandler("/Error");
             }
-
+            app.UsePathBase("/admin");
             app.UseStaticFiles();
 
             app.UseRouting();

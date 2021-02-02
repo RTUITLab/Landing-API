@@ -4,6 +4,7 @@ services:
   api:
     environment:
       GitHubOptinos__OAuthToken: ${GITHUB_OAUTH_TOKEN?Place GITHUB_OAUTH_TOKEN for production}
+      ScrubOptions__Delay: 00:30:00
     deploy:
       resources:
           limits:

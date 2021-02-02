@@ -13,7 +13,7 @@ services:
       environment:
         - ASPNETCORE_ENVIRONMENT=Development
       ports:
-        - 5002:5002
+        - 5003:5003
     postgres:
         image: postgres:13-alpine
         environment:

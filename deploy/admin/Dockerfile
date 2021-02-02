@@ -4,5 +4,5 @@ WORKDIR /app
 
 COPY admin-build .
 
-ENV ASPNETCORE_URLS=http://*:5002
+ENV ASPNETCORE_URLS=http://*:5003
 CMD dotnet AdminPanel.dll
