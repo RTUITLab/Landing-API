@@ -343,7 +343,8 @@ healthchecksdb
 tools
 
 # deploy folder
-deploy/api-build
+deploy/api/api-build
+deploy/admin/admin-build
 
 Landing.API/appsettings.Local.json
 

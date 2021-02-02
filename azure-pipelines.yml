@@ -13,24 +13,34 @@ stages:
         script: 'build.cake'
         target: 'PublishApi'
         verbosity: 'Verbose'
-    - publish: deploy
+    - publish: deploy/api
       artifact: api-build
+    - publish: deploy/admin
+      artifact: admin-build
 
 - stage: dockerImage
   condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
   jobs:
   - job: dockerBuild
+    strategy:
+      matrix:
+        api:
+          imageName: rtuitlab/landing-api
+          artifactName: api-build
+        admin:
+          imageName: rtuitlab/landing-admin
+          artifactName: admin-build
     steps:
     - download: current
-      artifact: api-build
-      displayName: Download api-build
+      artifact: $(artifacrName)
+      displayName: Download $(artifacrName)
     - task: Docker@2
       inputs:
         containerRegistry: 'rtuitlab connection by admin'
-        repository: 'rtuitlab/landing-api'
+        repository: $(imageName)
         command: 'buildAndPush'
-        Dockerfile: '$(Pipeline.Workspace)/api-build/Dockerfile'
-        buildContext: '$(Pipeline.Workspace)/api-build'
+        Dockerfile: '$(Pipeline.Workspace)/$(artifacrName)/Dockerfile'
+        buildContext: '$(Pipeline.Workspace)/$(artifacrName)'
         tags: |
           $(Build.BuildId)
           latest

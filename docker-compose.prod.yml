@@ -1,16 +1,28 @@
 version: '3.8'
 
 services:
-    api:
-      environment:
-        GitHubOptinos__OAuthToken: ${GITHUB_OAUTH_TOKEN?Place GITHUB_OAUTH_TOKEN for production}
-      deploy:
-        resources:
-            limits:
-                cpus: '0.30'
-                memory: 100M
-      logging:
-          driver: "json-file"
-          options:
-              max-size: "200k"
-              max-file: "10"
+  api:
+    environment:
+      GitHubOptinos__OAuthToken: ${GITHUB_OAUTH_TOKEN?Place GITHUB_OAUTH_TOKEN for production}
+    deploy:
+      resources:
+          limits:
+              cpus: '0.30'
+              memory: 100M
+    logging:
+        driver: "json-file"
+        options:
+            max-size: "200k"
+            max-file: "10"
+  admin:
+    deploy:
+      resources:
+          limits:
+              cpus: '0.30'
+              memory: 100M
+    logging:
+        driver: "json-file"
+        options:
+            max-size: "200k"
+            max-file: "10"
+      
