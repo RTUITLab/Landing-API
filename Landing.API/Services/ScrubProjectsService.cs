@@ -67,9 +67,9 @@ namespace Landing.API.Services
             int i = 0;
 
             var reps = await client.Repository.GetAllForOrg("rtuitlab");
-            foreach (var rep in reps.Skip(66))
+            foreach (var rep in reps)
             {
-                logger.LogInformation($"{i++}: {rep.FullName}");
+                logger.LogInformation($"{i++}/{reps.Count}: {rep.FullName}");
                 try
                 {
                     var projectInfo = await HandleRepository(client, rep);
