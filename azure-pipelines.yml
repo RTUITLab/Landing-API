@@ -32,15 +32,15 @@ stages:
           artifactName: admin-build
     steps:
     - download: current
-      artifact: $(artifacrName)
-      displayName: Download $(artifacrName)
+      artifact: $(artifactName)
+      displayName: Download $(artifactName)
     - task: Docker@2
       inputs:
         containerRegistry: 'rtuitlab connection by admin'
         repository: $(imageName)
         command: 'buildAndPush'
-        Dockerfile: '$(Pipeline.Workspace)/$(artifacrName)/Dockerfile'
-        buildContext: '$(Pipeline.Workspace)/$(artifacrName)'
+        Dockerfile: '$(Pipeline.Workspace)/$(artifactName)/Dockerfile'
+        buildContext: '$(Pipeline.Workspace)/$(artifactName)'
         tags: |
           $(Build.BuildId)
           latest
