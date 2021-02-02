@@ -11,7 +11,7 @@ stages:
     - task: Cake@2
       inputs:
         script: 'build.cake'
-        target: 'PublishApi'
+        target: 'PublishAll'
         verbosity: 'Verbose'
     - publish: deploy/api
       artifact: api-build
