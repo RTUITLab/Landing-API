@@ -5,6 +5,7 @@ using Microsoft.Toolkit.Parsers.Markdown.Inlines;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Landing.API.Services
@@ -16,11 +17,11 @@ namespace Landing.API.Services
             { " Title", (i, b) => i.Title = ParseTextParagraph(b) },
             { " Description", HandleDescription },
             { " Images", HandleImages },
-            { " Videos", (i, b) => i.Videos = ParseStringList(b) },
-            { " Tech", (i, b) => i.Tech= ParseStringList(b) },
-            { " Tags", (i, b) => i.Tags= ParseStringList(b) },
-            { " Developers", (i, b) => i.Developers= ParseStringList(b) },
-            { " Site", (i, b) => i.Site= ParseTextParagraph(b) },
+            { " Videos", (i, b) => i.Videos = ParseVideos(b) },
+            { " Tech", (i, b) => i.Tech = ParseStringListOrParagraph(b) },
+            { " Tags", (i, b) => i.Tags = ParseStringListOrParagraph(b) },
+            { " Developers", (i, b) => i.Developers = ParseStringListOrParagraph(b) },
+            { " Site", (i, b) => i.Site = ParseTextParagraph(b) },
             { " SourceCode", HandleSourceCode },
         };
 
@@ -44,7 +45,15 @@ namespace Landing.API.Services
                     }
                     if (handlers.ContainsKey(hContent))
                     {
-                        handlers[hContent](info, nextBlock);
+                        try
+                        {
+
+                            handlers[hContent](info, nextBlock);
+                        }
+                        catch (ParsingException ex)
+                        {
+                            throw new ParsingException($"Can't handle {hContent} item", ex);
+                        }
                     }
                 }
             }
@@ -79,7 +88,7 @@ namespace Landing.API.Services
             {
                 return paragraph.ReadAllInline().Trim();
             }
-            throw new Exception($"block is {block.Type} but must be {MarkdownBlockType.Paragraph}");
+            throw new ParsingException($"block is {block.Type} but must be {MarkdownBlockType.Paragraph}");
         }
 
         private static void HandleImages(ProjectInfo info, MarkdownBlock block)
@@ -100,7 +109,33 @@ namespace Landing.API.Services
                 return list.Items.Select(i =>
                     (i.Blocks.Single() as ParagraphBlock).ReadAllInline()).ToArray();
             }
-            throw new Exception($"block is {block.Type} but must be {MarkdownBlockType.List}");
+            throw new ParsingException($"block is {block.Type} but must be {MarkdownBlockType.List}");
+        }
+
+        private static string[] ParseStringListOrParagraph(MarkdownBlock block)
+        {
+            try
+            {
+                return ParseStringList(block);
+            }
+            catch (ParsingException)
+            {
+                return new string[] { ParseTextParagraph(block) };
+            }
+        }
+        private static readonly Regex youtubeRegex = new Regex("https://youtu.be/(?<id>[^/]+)");
+        private static string[] ParseVideos(MarkdownBlock block)
+        {
+            var videos = ParseStringListOrParagraph(block);
+            for (int i = 0; i < videos.Length; i++)
+            {
+                var match = youtubeRegex.Match(videos[i]);
+                if (match.Success)
+                {
+                    videos[i] = $"https://www.youtube.com/embed/{match.Groups["id"].Value}";
+                }
+            }
+            return videos;
         }
     }
 }

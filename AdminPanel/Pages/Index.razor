@@ -1,0 +1,40 @@
+﻿@page "/"
+@using Landing.API.Services
+<h1>Preview</h1>
+
+<div class="row">
+    <div class="col-6">
+        <textarea rows="30" style="width: 100%;" @oninput="HandleOnChange"></textarea>
+    </div>
+    <div class="col-6">
+        <div style="white-space:pre-wrap;">@result</div>
+        @if(!string.IsNullOrEmpty(error))
+        {
+            <div style="white-space:pre;" class="alert alert-error" role="alert">@error</div>
+        }
+    </div>
+</div>
+@code {
+    private string result;
+    private string error;
+    private Task HandleOnChange(ChangeEventArgs args)
+    {
+        error = "";
+        result = "";
+        try
+        {
+            var markdown = LandingFileParser.Parse(args.Value.ToString());
+            result = System.Text.Json.JsonSerializer.Serialize(markdown, new System.Text.Json.JsonSerializerOptions
+            {
+                Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+                WriteIndented = true
+            });
+        }
+        catch (Exception ex)
+        {
+            error = ex.Message;
+        }
+
+        return Task.CompletedTask;
+    }
+}
