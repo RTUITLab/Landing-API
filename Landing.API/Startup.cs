@@ -55,6 +55,9 @@ namespace Landing.API
                 app.UseDeveloperExceptionPage();
             }
             app.UseWebAppConfigure();
+            app.UseCors(config => config
+                .AllowAnyMethod()
+                .WithOrigins("http://localhost:3000"));
             app.UseRouting();
 
             app.UseAuthorization();
