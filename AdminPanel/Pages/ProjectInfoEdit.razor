@@ -1,0 +1,56 @@
+﻿@page "/projects/{Repo}"
+@using Landing.API.Models
+@using Landing.API.Services
+@using Microsoft.EntityFrameworkCore
+
+@inherits OwningComponentBase<ProjectInfoService>
+<h3>Edit @Repo</h3>
+
+
+<div class="row">
+    <div class="col-6">Current</div>
+    <div class="col-6">New</div>
+</div>
+
+<div class="row">
+    <div class="col-6">
+        @if (currentInfo == null)
+        {
+            <p>No public info</p>
+        }
+        else
+        {
+            <ProjectInfoView ProjectInfo="currentInfo.Info" />
+        }
+    </div>
+    <div class="col-6">
+        @if (newInfo== null)
+        {
+            <p>No new info</p>
+        } else
+        {
+            <ProjectInfoView ProjectInfo="newInfo.Info"/>
+            <button class="btn btn-success" @onclick="() => SubmitVersion(newInfo.Id)">Publish info</button>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string Repo { get; set; }
+
+    private ProjectInfoRecord currentInfo;
+    private ProjectInfoRecord newInfo;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await base.OnParametersSetAsync();
+        (currentInfo, newInfo) = await Service.GetRecordsForRepo(Repo);
+    }
+
+    private async Task SubmitVersion(int id)
+    {
+        await Service.PublishInfo(Repo, id);
+        (currentInfo, newInfo) = await Service.GetRecordsForRepo(Repo);
+    }
+}

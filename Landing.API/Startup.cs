@@ -42,8 +42,11 @@ namespace Landing.API
             services.AddAutoMapper(typeof(ResponseProfile));
             services.AddWebAppConfigure()
                 .AddTransientConfigure<MigrationWork>();
-            services.AddSingleton<ProjectsInfoCache>();
+            services.AddMemoryCache();
+
+            services.AddScoped<ProjectInfoService>();
             services.AddHostedService<ScrubProjectsService>();
+
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

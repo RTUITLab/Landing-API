@@ -1,5 +1,6 @@
 ﻿using Landing.API.Configure;
 using Landing.API.Models;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -16,18 +17,18 @@ namespace Landing.API.Services
 {
     public class ScrubProjectsService : BackgroundService
     {
-        private readonly ProjectsInfoCache projectsCache;
+        private readonly IServiceScopeFactory serviceScopeFactory;
         private readonly IOptions<ScrubOptions> scrubOptions;
         private readonly IOptions<GitHubOptinos> githubOptions;
         private readonly ILogger<ScrubProjectsService> logger;
 
         public ScrubProjectsService(
-            ProjectsInfoCache projectsCache,
+            IServiceScopeFactory serviceScopeFactory,
             IOptions<ScrubOptions> scrubOptions,
             IOptions<GitHubOptinos> githubOptions,
             ILogger<ScrubProjectsService> logger)
         {
-            this.projectsCache = projectsCache;
+            this.serviceScopeFactory = serviceScopeFactory;
             this.scrubOptions = scrubOptions;
             this.githubOptions = githubOptions;
             this.logger = logger;
@@ -69,11 +70,31 @@ namespace Landing.API.Services
             var reps = await client.Repository.GetAllForOrg("rtuitlab");
             foreach (var rep in reps)
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 logger.LogInformation($"{i++}/{reps.Count}: {rep.FullName}");
                 try
                 {
+                    using var scope = serviceScopeFactory.CreateScope();
+                    var projectsService = scope.ServiceProvider.GetRequiredService<ProjectInfoService>();
+
+                    if (!rep.PushedAt.HasValue)
+                    {
+                        logger.LogInformation($"Skip {rep.FullName} no PushetAt property");
+                        continue;
+                    }
+
+                    if (!await projectsService.CommitIsActual(rep.FullName, rep.PushedAt ?? DateTime.MinValue))
+                    {
+                        logger.LogInformation($"Skip {rep.FullName} too old commit");
+                        continue;
+                    }
+
                     var projectInfo = await HandleRepository(client, rep);
-                    projectsCache.UpdateCache(rep.FullName, projectInfo);
+
+                    if (projectInfo != null)
+                    {
+                        await projectsService.AddProjectInfo(rep.FullName, projectInfo.CommitSha, rep.PushedAt.Value, projectInfo);
+                    }
                 }
                 catch (ApiException ex) when (ex.Message?.Contains("is empty") == true)
                 {
@@ -84,15 +105,14 @@ namespace Landing.API.Services
 
         private async Task<ProjectInfo> HandleRepository(GitHubClient client, Repository repo)
         {
-            if (!repo.PushedAt.HasValue)
-            {
-                logger.LogInformation($"Skip {repo.FullName} no PushetAt property");
-                return null;
-            }
+
+
             var br = repo.DefaultBranch;
 
-            var refs = await client.Git.Reference.Get(repo.Id, $"refs/heads/{br}");
-            var tree = await client.Git.Tree.Get(repo.Id, refs.Ref);
+            var mainReference = await client.Git.Reference.Get(repo.Id, $"refs/heads/{br}");
+
+            var tree = await client.Git.Tree.Get(repo.Id, mainReference.Ref);
+
             var targetFile = tree.Tree.SingleOrDefault(f => f.Path == "LANDING.md");
             if (targetFile is null)
             {
@@ -111,11 +131,12 @@ namespace Landing.API.Services
             {
                 var info = await new LandingFileParser(repo.FullName, repo.DefaultBranch).ParseAsync(fileContent);
                 info.Date = repo.UpdatedAt.ToString("dd/MM/yyyy");
+                info.CommitSha = mainReference.Object.Sha;
                 return info;
             }
             catch (Exception ex)
             {
-                logger.LogWarning(ex, $"Can't parse project file in {repo.FullName} {repo.DefaultBranch} {refs.Ref}");
+                logger.LogWarning(ex, $"Can't parse project file in {repo.FullName} {repo.DefaultBranch} {mainReference.Ref}");
                 return null;
             }
         }

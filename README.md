@@ -36,3 +36,16 @@ docker-compose -f ./docker-compose.yml -f ./docker-compose.prod.yml config > sta
 ```
 
 3. Use stack file for `docker-compose` or `swarm`
+
+## Develop
+
+Restore tools
+```bash
+dotnet tool restore
+```
+
+Add new migration
+```bash
+cd Database
+dotnet ef migrations add MIGRATION_NAME --startup-project ../Landing.API
+```

@@ -1,0 +1,99 @@
+﻿<h4>Title</h4>
+@if (string.IsNullOrEmpty(ProjectInfo.Title))
+{
+    <div class="alert alert-danger" role="alert">NULL</div>
+}
+else
+{
+    <p>@ProjectInfo.Title</p>
+}
+
+<h4>Description</h4>
+@if (string.IsNullOrEmpty(ProjectInfo.Title))
+{
+    <div class="alert alert-danger" role="alert">NULL</div>
+}
+else
+{
+    <p style="white-space:pre-wrap;">@ProjectInfo.Description</p>
+}
+
+<h4>Images</h4>
+@if (ProjectInfo.Images == null || ProjectInfo.Images.Length == 0)
+{
+    <div class="alert alert-warning" role="alert">Empty</div>
+}
+else
+{
+    foreach (var image in ProjectInfo.Images)
+    {
+        <p>@image </p>
+        <img style="max-width: 100%;" src="@image" />
+    }
+}
+
+<h4>Videos</h4>
+@if (ProjectInfo.Videos == null || ProjectInfo.Videos.Length == 0)
+{
+    <div class="alert alert-warning" role="alert">Empty</div>
+}
+else
+{
+    <p style="white-space:pre-wrap;">@(Serialize(ProjectInfo.Videos))</p>
+}
+
+<h4>Developers</h4>
+@if (ProjectInfo.Developers == null || ProjectInfo.Developers.Length == 0)
+{
+    <div class="alert alert-warning" role="alert">Empty</div>
+}
+else
+{
+    <p style="white-space:pre-wrap;">@(Serialize(ProjectInfo.Developers))</p>
+}
+
+<h4>Tech</h4>
+@if (ProjectInfo.Tech == null || ProjectInfo.Tech.Length == 0)
+{
+    <div class="alert alert-warning" role="alert">Empty</div>
+}
+else
+{
+    <p style="white-space:pre-wrap;">@(Serialize(ProjectInfo.Tech))</p>
+}
+
+<h4>Site</h4>
+@if (string.IsNullOrEmpty(ProjectInfo.Site))
+{
+    <div class="alert alert-warning" role="alert">Empty</div>
+}
+else
+{
+    <p style="white-space:pre-wrap;">@ProjectInfo.Site</p>
+}
+
+<h4>SourceCode</h4>
+@if (ProjectInfo.SourceCode == null || ProjectInfo.SourceCode.Length == 0)
+{
+    <div class="alert alert-warning" role="alert">Empty</div>
+}
+else
+{
+    <p style="white-space:pre-wrap;">@(Serialize(ProjectInfo.SourceCode))</p>
+}
+@code {
+
+    private System.Text.Json.JsonSerializerOptions serializerOptions = new System.Text.Json.JsonSerializerOptions
+    {
+        Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+        WriteIndented = true
+    };
+
+    [Parameter]
+    public Landing.API.Models.ProjectInfo ProjectInfo { get; set; }
+
+    private string Serialize(object value)
+    {
+        return System.Text.Json.JsonSerializer.Serialize(value, serializerOptions);
+    }
+}
