@@ -56,5 +56,25 @@ namespace Landing.API.Services
             hidden.Info = projectInfo;
             await dbContext.SaveChangesAsync();
         }
+
+        public async Task<(ProjectInfoRecord currentInfo, ProjectInfoRecord newInfo)> GetRecordsForRepo(string repo)
+        {
+            var records = await dbContext.ProjectInfos.AsNoTracking().Where(i => i.Repo == repo).ToListAsync();
+            return (records.SingleOrDefault(r => r.IsPublic), records.SingleOrDefault(r => !r.IsPublic));
+        }
+
+        public async Task PublishInfo(string repo, int recordToPublishId)
+        {
+            var records = await dbContext.ProjectInfos.AsNoTracking().Where(i => i.Repo == repo).ToListAsync();
+            var current = records.SingleOrDefault(r => r.IsPublic);
+            if (current != null)
+            {
+                dbContext.Remove(current);
+            }
+            var newInfo = records.Single(r => r.Id == recordToPublishId);
+            newInfo.IsPublic = true;
+            dbContext.Update(newInfo);
+            await dbContext.SaveChangesAsync();
+        }
     }
 }

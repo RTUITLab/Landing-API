@@ -1,9 +1,9 @@
 ﻿@page "/projects/{Repo}"
 @using Landing.API.Models
-@using Landing.API.Database
+@using Landing.API.Services
 @using Microsoft.EntityFrameworkCore
 
-@inherits OwningComponentBase<LandingDbContext>
+@inherits OwningComponentBase<ProjectInfoService>
 <h3>Edit @Repo</h3>
 
 
@@ -18,6 +18,10 @@
         {
             <p>No public info</p>
         }
+        else
+        {
+            <ProjectInfoView ProjectInfo="currentInfo.Info" />
+        }
     </div>
     <div class="col-6">
         @if (newInfo== null)
@@ -26,6 +30,7 @@
         } else
         {
             <ProjectInfoView ProjectInfo="newInfo.Info"/>
+            <button class="btn btn-success" @onclick="() => SubmitVersion(newInfo.Id)">Publish info</button>
         }
     </div>
 </div>
@@ -40,8 +45,12 @@
     protected override async Task OnParametersSetAsync()
     {
         await base.OnParametersSetAsync();
-        var records = await Service.ProjectInfos.AsNoTracking().Where(i => i.Repo == Repo).ToListAsync();
-        currentInfo = records.SingleOrDefault(r => r.IsPublic);
-        newInfo = records.SingleOrDefault(r => !r.IsPublic);
+        (currentInfo, newInfo) = await Service.GetRecordsForRepo(Repo);
+    }
+
+    private async Task SubmitVersion(int id)
+    {
+        await Service.PublishInfo(Repo, id);
+        (currentInfo, newInfo) = await Service.GetRecordsForRepo(Repo);
     }
 }
