@@ -18,6 +18,14 @@ namespace Landing.API.Services
             this.dbContext = dbContext;
         }
 
+        public async Task<List<ProjectInfo>> GetPublicProjectInfos()
+        {
+            return await dbContext.ProjectInfos
+                .Where(pi => pi.IsPublic)
+                .Select(pi => pi.Info)
+                .ToListAsync();
+        }
+
         public async Task<bool> CommitIsActual(string repo, DateTimeOffset commitDate)
         {
             return !await dbContext.ProjectInfos
