@@ -20,7 +20,7 @@ variables:
     imageTags: |
       $(Build.BuildId)
       latest
-    apiapiServiceName: landing_api
+    apiServiceName: landing_api
     adminServiceName: landing_admin
 
 stages:
