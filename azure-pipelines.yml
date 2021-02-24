@@ -67,7 +67,7 @@ stages:
 - stage: UpdateApi
   condition: ${{variables.deployService}}
   jobs:
-  - deployment: Deploy
+  - deployment: DeployApi
     pool:
       vmImage: 'ubuntu-latest'
     environment: ${{variables.deployEnvironment}}
@@ -82,10 +82,7 @@ stages:
                 runOptions: 'commands'
                 commands: 'docker service update --image rtuitlab/landing-api:$(Build.BuildId) ${{variables.apiServiceName}}'
                 readyTimeout: '20000'
-- stage: UpdateAdmin
-  condition: ${{variables.deployService}}
-  jobs:
-  - deployment: Deploy
+  - deployment: DeployAdmin
     pool:
       vmImage: 'ubuntu-latest'
     environment: ${{variables.deployEnvironment}}
