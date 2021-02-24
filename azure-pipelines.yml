@@ -11,7 +11,8 @@ variables:
     imageTags: |
       $(Build.BuildId)
       develop
-    serviceName: landing-develop_api
+    apiServiceName: landing-develop_api
+    adminServiceName: landing-develop_admin
   ${{ if eq(variables['Build.SourceBranchName'], 'master') }}:
     buildImage: true
     deployService: true
@@ -19,7 +20,8 @@ variables:
     imageTags: |
       $(Build.BuildId)
       latest
-    serviceName: landing_api
+    apiapiServiceName: landing_api
+    adminServiceName: landing_admin
 
 stages:
 - stage: build
@@ -62,7 +64,7 @@ stages:
         tags: |
           $(Build.BuildId)
           latest
-- stage: UpdateService
+- stage: UpdateApi
   condition: ${{variables.deployService}}
   jobs:
   - deployment: Deploy
@@ -78,5 +80,23 @@ stages:
               inputs:
                 sshEndpoint: 'swarm manager'
                 runOptions: 'commands'
-                commands: 'docker service update --image rtuitlab/landing-api:$(Build.BuildId) ${{variables.serviceName}}'
+                commands: 'docker service update --image rtuitlab/landing-api:$(Build.BuildId) ${{variables.apiServiceName}}'
+                readyTimeout: '20000'
+- stage: UpdateAdmin
+  condition: ${{variables.deployService}}
+  jobs:
+  - deployment: Deploy
+    pool:
+      vmImage: 'ubuntu-latest'
+    environment: ${{variables.deployEnvironment}}
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            - download: none
+            - task: SSH@0
+              inputs:
+                sshEndpoint: 'swarm manager'
+                runOptions: 'commands'
+                commands: 'docker service update --image rtuitlab/landing-admin:$(Build.BuildId) ${{variables.adminServiceName}}'
                 readyTimeout: '20000'
