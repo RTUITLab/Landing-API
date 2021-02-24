@@ -1,0 +1,47 @@
+﻿@page "/projects/{Repo}"
+@using Landing.API.Models
+@using Landing.API.Database
+@using Microsoft.EntityFrameworkCore
+
+@inherits OwningComponentBase<LandingDbContext>
+<h3>Edit @Repo</h3>
+
+
+<div class="row">
+    <div class="col-6">Current</div>
+    <div class="col-6">New</div>
+</div>
+
+<div class="row">
+    <div class="col-6">
+        @if (currentInfo == null)
+        {
+            <p>No public info</p>
+        }
+    </div>
+    <div class="col-6">
+        @if (newInfo== null)
+        {
+            <p>No new info</p>
+        } else
+        {
+            <ProjectInfoView ProjectInfo="newInfo.Info"/>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string Repo { get; set; }
+
+    private ProjectInfoRecord currentInfo;
+    private ProjectInfoRecord newInfo;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await base.OnParametersSetAsync();
+        var records = await Service.ProjectInfos.AsNoTracking().Where(i => i.Repo == Repo).ToListAsync();
+        currentInfo = records.SingleOrDefault(r => r.IsPublic);
+        newInfo = records.SingleOrDefault(r => !r.IsPublic);
+    }
+}

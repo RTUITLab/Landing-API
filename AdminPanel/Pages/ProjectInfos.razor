@@ -1,0 +1,47 @@
+﻿@page "/projects"
+
+@using Landing.API.Models
+@using Landing.API.Database
+@using Microsoft.EntityFrameworkCore
+
+
+
+@inherits OwningComponentBase<LandingDbContext>
+
+<h3>ProjectInfos</h3>
+
+@if (projects == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    @foreach (var item in projects)
+    {
+        <h4><NavLink href="@($"projects/{System.Net.WebUtility.UrlEncode(item.Key)}")">@item.Key</NavLink></h4>
+        @if (item.Value.All(v => !v.IsPublic))
+        {
+            <div class="alert alert-warning" role="alert">No public version</div>
+        }
+        else if (!item.Value.OrderBy(p => p.CommitDate).Last().IsPublic)
+        {
+            <div class="alert alert-warning" role="alert">Has new version</div>
+        }
+        else
+        {
+            <div class="alert alert-info" role="alert">All ok</div>
+        }
+    }
+}
+
+@code {
+
+    private Dictionary<string, List<ProjectInfoRecord>> projects;
+
+    protected async override Task OnParametersSetAsync()
+    {
+        await base.OnParametersSetAsync();
+        var records = await Service.ProjectInfos.AsNoTracking().ToListAsync();
+        projects = records.GroupBy(p => p.Repo).ToDictionary(g => g.Key, g => g.ToList());
+    }
+}

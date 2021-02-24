@@ -43,6 +43,8 @@ namespace Landing.API
             services.AddWebAppConfigure()
                 .AddTransientConfigure<MigrationWork>();
             services.AddSingleton<ProjectsInfoCache>();
+            
+            services.AddScoped<ProjectInfoService>();
             services.AddHostedService<ScrubProjectsService>();
         }
 
