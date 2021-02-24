@@ -17,20 +17,17 @@ namespace Landing.API.Services
 {
     public class ScrubProjectsService : BackgroundService
     {
-        private readonly ProjectsInfoCache projectsCache;
         private readonly IServiceScopeFactory serviceScopeFactory;
         private readonly IOptions<ScrubOptions> scrubOptions;
         private readonly IOptions<GitHubOptinos> githubOptions;
         private readonly ILogger<ScrubProjectsService> logger;
 
         public ScrubProjectsService(
-            ProjectsInfoCache projectsCache,
             IServiceScopeFactory serviceScopeFactory,
             IOptions<ScrubOptions> scrubOptions,
             IOptions<GitHubOptinos> githubOptions,
             ILogger<ScrubProjectsService> logger)
         {
-            this.projectsCache = projectsCache;
             this.serviceScopeFactory = serviceScopeFactory;
             this.scrubOptions = scrubOptions;
             this.githubOptions = githubOptions;
@@ -94,7 +91,6 @@ namespace Landing.API.Services
 
                     var projectInfo = await HandleRepository(client, rep);
 
-                    projectsCache.UpdateCache(rep.FullName, projectInfo);
                     if (projectInfo != null)
                     {
                         await projectsService.AddProjectInfo(rep.FullName, projectInfo.CommitSha, rep.PushedAt.Value, projectInfo);

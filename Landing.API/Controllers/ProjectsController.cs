@@ -15,31 +15,20 @@ namespace Landing.API.Controllers
     [Route("api/[controller]")]
     public class ProjectsController : ControllerBase
     {
-        private readonly ProjectsInfoCache projectsCache;
         private readonly IMapper mapper;
-        private IMemoryCache cache;
+        private readonly ProjectInfoService projectInfoService;
+        private readonly IMemoryCache cache;
         public ProjectsController(
-            ProjectsInfoCache projectsCache,
+            ProjectInfoService projectInfoService,
             IMemoryCache cache,
             IMapper mapper)
         {
-            this.projectsCache = projectsCache;
+            this.projectInfoService = projectInfoService;
             this.cache = cache;
             this.mapper = mapper;
         }
         [HttpGet]
-        public ActionResult<IEnumerable<ProjectInfoResponse>> GetProjects()
-        {
-            return projectsCache.GetAllProjects().Select((p, i) =>
-                {
-                    var mapped = mapper.Map<ProjectInfoResponse>(p);
-                    mapped.Id = i;
-                    return mapped;
-                })
-                .ToList();
-        }
-        [HttpGet("v1.1")]
-        public async Task<ActionResult<IEnumerable<ProjectInfoResponse>>> GetProjectsV11Async([FromServices] ProjectInfoService projectInfoService)
+        public async Task<ActionResult<IEnumerable<ProjectInfoResponse>>> GetProjectsV11Async()
         {
             var projectInfos = await cache.GetOrCreateAsync("PROJECTS", async (entry) =>
             {
