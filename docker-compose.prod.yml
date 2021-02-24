@@ -5,6 +5,7 @@ services:
     environment:
       GitHubOptinos__OAuthToken: ${GITHUB_OAUTH_TOKEN?Place GITHUB_OAUTH_TOKEN for production}
       ScrubOptions__Delay: 00:30:00
+      ConnectionStrings__POSTGRES: ${POSTGRES_DATABASE_CONNECTION_STRING?Place connection string to database POSTGRES_DATABASE_CONNECTION_STRING}
     deploy:
       resources:
           limits:
@@ -16,6 +17,8 @@ services:
             max-size: "200k"
             max-file: "10"
   admin:
+    environment:
+      ConnectionStrings__POSTGRES: ${POSTGRES_DATABASE_CONNECTION_STRING?Place connection string to database POSTGRES_DATABASE_CONNECTION_STRING}
     deploy:
       resources:
           limits:
