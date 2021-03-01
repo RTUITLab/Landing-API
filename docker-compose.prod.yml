@@ -29,4 +29,17 @@ services:
         options:
             max-size: "200k"
             max-file: "10"
-      
+  preview:
+    deploy:
+      resources:
+        limits:
+          cpus: '0.10'
+          memory: 50M
+        reservations:
+          cpus: '0.05'
+          memory: 20M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "200k"
+        max-file: "10"
