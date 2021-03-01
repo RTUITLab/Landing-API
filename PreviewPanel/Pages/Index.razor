@@ -1,0 +1,89 @@
+﻿@page "/"
+@using Landing.API.Services
+<h1>Preview</h1>
+
+<div class="row" style="margin: 10px">
+    <div class="col-6">
+        <label>
+            @if (string.IsNullOrEmpty(repoName))
+            {
+                <div class="alert alert-danger" role="alert">Repo name</div>
+            }
+            else
+            {
+                <div>Repo name</div>
+            }
+            <input @oninput="HandleOnChangeRepoName" value="@repoName" />
+        </label>
+        <label>
+            @if (string.IsNullOrEmpty(defaultBranch))
+            {
+                <div class="alert alert-danger" role="alert">Default branch</div>
+            }
+            else
+            {
+                <div>Default branch</div>
+            }
+            <input @oninput="HandleOnChangeDefaultBranch" value="@defaultBranch" />
+        </label>
+        <textarea rows="30" style="width: 100%;" @oninput="HandleOnChangeMarkdown"></textarea>
+    </div>
+    <div class="col-6">
+        @if (error != null)
+        {
+            <h3>Error</h3>
+            <div style="white-space:pre-wrap;" class="alert alert-danger" role="alert">@error.Message</div>
+            <div style="white-space:pre-wrap;" class="alert alert-danger" role="alert">@error.StackTrace</div>
+        }
+        @if (result != null)
+        {
+            <ProjectInfoView ProjectInfo="result" />
+        }
+    </div>
+</div>
+@code {
+
+    private string repoName;
+    private string defaultBranch = "master";
+    private string markdown;
+
+    private Landing.API.Models.ProjectInfo result;
+    private Exception error;
+
+
+    private async Task HandleOnChangeRepoName(ChangeEventArgs args)
+    {
+        repoName = args.Value.ToString();
+        await Parse();
+    }
+
+    private async Task HandleOnChangeDefaultBranch(ChangeEventArgs args)
+    {
+        defaultBranch = args.Value.ToString();
+        await Parse();
+    }
+
+    private async Task HandleOnChangeMarkdown(ChangeEventArgs args)
+    {
+        markdown = args.Value.ToString();
+        await Parse();
+    }
+
+    private async ValueTask Parse()
+    {
+        result = null;
+        error = null;
+        try
+        {
+            if (!string.IsNullOrEmpty(markdown))
+            {
+                result = await new LandingFileParser($"RTUITLab/{repoName}", defaultBranch).ParseAsync(markdown);
+            }
+        }
+        catch (Exception ex)
+        {
+            error = ex;
+        }
+    }
+
+}
