@@ -79,7 +79,7 @@ Task("BuildPreview")
 });
 
 Task("PublishPreview")
-   .IsDependentOn("BuildAdmin")
+   .IsDependentOn("BuildPreview")
    .Does(() =>
 {
    var settings = new DotNetCorePublishSettings

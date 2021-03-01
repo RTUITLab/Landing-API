@@ -49,3 +49,13 @@ Add new migration
 cd Database
 dotnet ef migrations add MIGRATION_NAME --startup-project ../Landing.API
 ```
+
+## Preview
+
+### Run develop mode
+
+```bash
+cd PreviewPanel
+dotnet watch run --pathbase=/preview
+```
+Go to [http://localhost:5004/prewiew](http://localhost:5004/prewiew)

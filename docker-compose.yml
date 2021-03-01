@@ -5,3 +5,5 @@ services:
       image: rtuitlab/landing-api
     admin:
       image: rtuitlab/landing-admin
+    preview:
+      image: rtuitlab/landing-preview
