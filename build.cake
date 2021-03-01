@@ -7,6 +7,9 @@ var apiProject = "Landing.API/Landing.API.csproj";
 var adminPublishDir = "deploy/admin/admin-build";
 var adminProject = "AdminPanel/AdminPanel.csproj";
 
+var previewPublishDir = "deploy/preview/preview-build";
+var previewProject = "PreviewPanel/PreviewPanel.csproj";
+
 Setup(ctx =>
 {
    CleanDirectory(apiPublishDir);
@@ -65,9 +68,33 @@ Task("PublishAdmin")
    DotNetCorePublish(adminProject, settings);
 });
 
+Task("BuildPreview")
+   .IsDependentOn("RestoreSolution")
+   .Does(() =>
+{
+   var settings = new DotNetCoreBuildSettings {
+      Configuration = configuration
+   };
+   DotNetCoreBuild(previewProject, settings);
+});
+
+Task("PublishPreview")
+   .IsDependentOn("BuildAdmin")
+   .Does(() =>
+{
+   var settings = new DotNetCorePublishSettings
+   {
+      Configuration = configuration,
+      OutputDirectory = previewPublishDir
+   };
+
+   DotNetCorePublish(previewProject, settings);
+});
+
 Task("PublishAll")
    .IsDependentOn("PublishApi")
    .IsDependentOn("PublishAdmin")
+   .IsDependentOn("PublishPreview")
    .Does(() =>
 {
 });
