@@ -37,6 +37,8 @@ stages:
       artifact: api-build
     - publish: deploy/admin
       artifact: admin-build
+    - publish: deploy/preview
+      artifact: preview-build
 
 - stage: dockerImage
   condition: ${{variables.buildImage}}
@@ -50,6 +52,9 @@ stages:
         admin:
           imageName: rtuitlab/landing-admin
           artifactName: admin-build
+        preview:
+          imageName: rtuitlab/landing-preview
+          artifactName: preview-build
     steps:
     - download: current
       artifact: $(artifactName)
@@ -61,10 +66,9 @@ stages:
         command: 'buildAndPush'
         Dockerfile: '$(Pipeline.Workspace)/$(artifactName)/Dockerfile'
         buildContext: '$(Pipeline.Workspace)/$(artifactName)'
-        tags: |
-          $(Build.BuildId)
-          latest
-- stage: UpdateApi
+        tags: ${{variables.imageTags}}
+
+- stage: UpdateServices
   condition: ${{variables.deployService}}
   jobs:
   - deployment: DeployApi

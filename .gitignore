@@ -345,6 +345,7 @@ tools
 # deploy folder
 deploy/api/api-build
 deploy/admin/admin-build
+deploy/preview/preview-build
 
 Landing.API/appsettings.Local.json
 

@@ -24,6 +24,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Services", "Services\Servic
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdminPanel", "AdminPanel\AdminPanel.csproj", "{80068EF4-B5B4-496C-AE7E-2178116495F7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PreviewPanel", "PreviewPanel\PreviewPanel.csproj", "{477B874F-58CC-49D1-BB83-917A5A7A699F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdminComponents", "AdminComponents\AdminComponents.csproj", "{18A51810-5146-4B6D-B2B5-464242708F3A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -54,6 +58,14 @@ Global
 		{80068EF4-B5B4-496C-AE7E-2178116495F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{80068EF4-B5B4-496C-AE7E-2178116495F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{80068EF4-B5B4-496C-AE7E-2178116495F7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{477B874F-58CC-49D1-BB83-917A5A7A699F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{477B874F-58CC-49D1-BB83-917A5A7A699F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{477B874F-58CC-49D1-BB83-917A5A7A699F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{477B874F-58CC-49D1-BB83-917A5A7A699F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{18A51810-5146-4B6D-B2B5-464242708F3A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{18A51810-5146-4B6D-B2B5-464242708F3A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{18A51810-5146-4B6D-B2B5-464242708F3A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{18A51810-5146-4B6D-B2B5-464242708F3A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
