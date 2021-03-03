@@ -109,26 +109,62 @@
             </div>
         </div>
     }
-    @* @(Serialize(ProjectInfo)) *@
 </div>
+
+@if (string.IsNullOrEmpty(ProjectInfo.Title))
+{
+    <h4>Title</h4>
+    <div class="alert alert-danger" role="alert">NULL</div>
+}
+
+@if (string.IsNullOrEmpty(ProjectInfo.Title))
+{
+    <h4>Description</h4>
+    <div class="alert alert-danger" role="alert">NULL</div>
+}
+
+@if (ProjectInfo.Images == null || ProjectInfo.Images.Length == 0)
+{
+    <h4>Images</h4>
+    <div class="alert alert-warning" role="alert">Empty</div>
+}
+
+@if (ProjectInfo.Videos == null || ProjectInfo.Videos.Length == 0)
+{
+    <h4>Videos</h4> 
+    <div class="alert alert-warning" role="alert">Empty</div>
+}
+
+@if (ProjectInfo.Developers == null || ProjectInfo.Developers.Length == 0)
+{
+    <h4>Developers</h4>
+    <div class="alert alert-warning" role="alert">Empty</div>
+}
+
+@if (ProjectInfo.Tech == null || ProjectInfo.Tech.Length == 0)
+{
+    <h4>Tech</h4>
+    <div class="alert alert-warning" role="alert">Empty</div>
+}
+
+@if (string.IsNullOrEmpty(ProjectInfo.Site))
+{
+    <h4>Site</h4>
+    <div class="alert alert-warning" role="alert">Empty</div>
+}
+
+@if (ProjectInfo.SourceCode == null || ProjectInfo.SourceCode.Length == 0)
+{
+    <h4>SourceCode</h4>
+    <div class="alert alert-warning" role="alert">Empty</div>
+}
 
 @code {
     [Parameter]
     public Landing.API.Models.ProjectInfo ProjectInfo { get; set; }
 
-    public Boolean isWallpaper = false;
+    public Boolean isWallpaper = true;
     public int activeImage = 0;
-
-    private System.Text.Json.JsonSerializerOptions serializerOptions = new System.Text.Json.JsonSerializerOptions
-    {
-        Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
-        WriteIndented = true
-    };
-
-    private string Serialize(object value)
-    {
-        return System.Text.Json.JsonSerializer.Serialize(value, serializerOptions);
-    }
 
     private string getDate()
     {
