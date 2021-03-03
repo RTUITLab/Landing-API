@@ -1,0 +1,65 @@
+<div class="project-preview">
+    @if (isWallpaper)
+    {
+        <div class="project__item">
+            <h1 class="project__item_date">Release date: @getDate()</h1>
+            <div class="project__item_image">
+                @if (ProjectInfo.Images == null || ProjectInfo.Images.Length == 0)
+                {
+                    <div style="aspect-ratio: 16 / 9; background-color: #090a1a"></div>
+                }
+                else
+                {
+                    <img src="@ProjectInfo.Images[0]" alt="@ProjectInfo.Title">
+                }
+
+                <div class="project__item_title" @onclick="toInfo">
+                    <h4>@ProjectInfo.Title</h4>
+                </div>
+            </div>
+        </div>
+    }
+    @* @(Serialize(ProjectInfo)) *@
+</div>
+
+@code {
+    [Parameter]
+    public Landing.API.Models.ProjectInfo ProjectInfo { get; set; }
+
+    public Boolean isWallpaper = true;
+
+    private System.Text.Json.JsonSerializerOptions serializerOptions = new System.Text.Json.JsonSerializerOptions
+    {
+        Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+        WriteIndented = true
+    };
+
+    private string Serialize(object value)
+    {
+        return System.Text.Json.JsonSerializer.Serialize(value, serializerOptions);
+    }
+
+    private string getDate()
+    {
+        DateTime date = DateTime.Today;
+
+        if (ProjectInfo.Date == null)
+        {
+            return date.Day + "/" + date.Month + "/" + date.Year;
+        }
+        else
+        {
+            return ProjectInfo.Date;
+        }
+    }
+
+    private void toInfo()
+    {
+        this.isWallpaper = false;
+    }
+
+    private void toWallpaper()
+    {
+        this.isWallpaper = true;
+    }
+}
