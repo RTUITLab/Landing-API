@@ -20,16 +20,19 @@
         }
         else
         {
+            <h6><a href="@($"https://github.com/{currentInfo.Repo}/commit/{currentInfo.Commit}")" target="_blank">Commit</a></h6>
             <ProjectInfoView ProjectInfo="currentInfo.Info" />
         }
     </div>
     <div class="col-6">
-        @if (newInfo== null)
+        @if (newInfo == null)
         {
             <p>No new info</p>
-        } else
+        }
+        else
         {
-            <ProjectInfoView ProjectInfo="newInfo.Info"/>
+            <h6><a href="@($"https://github.com/{newInfo.Repo}/commit/{newInfo.Commit}")" target="_blank">Commit</a></h6>
+            <ProjectInfoView ProjectInfo="newInfo.Info" />
             <button class="btn btn-success" @onclick="() => SubmitVersion(newInfo.Id)">Publish info</button>
         }
     </div>
