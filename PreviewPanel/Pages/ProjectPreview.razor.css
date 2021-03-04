@@ -1,0 +1,13 @@
+.project-preview {
+  background-color: #191C4D;
+  height: 100%;
+  width: 100%;
+  padding: 20px;
+  color: white;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+@font-face {
+  font-family: "Sansation Regular";
+  src: url("fonts/sansation-regular.ttf");
+}

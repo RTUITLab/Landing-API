@@ -1,5 +1,6 @@
 ﻿@page "/"
 @using Landing.API.Services
+@inject IJSRuntime JS;
 <h1>Preview</h1>
 
 <div class="row" style="margin: 10px">
@@ -37,7 +38,8 @@
         }
         @if (result != null)
         {
-            <ProjectInfoView ProjectInfo="result" />
+            @*<ProjectInfoView ProjectInfo="result" />*@
+            <ProjectPreview ProjectInfo="result"></ProjectPreview>
         }
     </div>
 </div>
@@ -78,6 +80,7 @@
             if (!string.IsNullOrEmpty(markdown))
             {
                 result = await new LandingFileParser($"RTUITLab/{repoName}", defaultBranch).ParseAsync(markdown);
+                await JS.InvokeAsync<Landing.API.Models.ProjectInfo>("sendMessage", result);
             }
         }
         catch (Exception ex)

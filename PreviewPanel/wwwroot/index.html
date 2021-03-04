@@ -9,6 +9,16 @@
     <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet" />
     <link href="css/app.css" rel="stylesheet" />
     <link href="PreviewPanel.styles.css" rel="stylesheet" />
+    <script>
+        window.sendMessage = async (data) => {
+            let timer = setInterval(() => {
+                if (document.getElementById('window')) {
+                    document.getElementById('window').contentWindow.postMessage(data, 'http://localhost:3000');
+                    clearInterval(timer);
+                }
+            }, 500);
+        }
+    </script>
 </head>
 
 <body>
