@@ -23,6 +23,7 @@ namespace Landing.API.Services
             return await dbContext.ProjectInfos
                 .Where(pi => pi.IsPublic)
                 .Select(pi => pi.Info)
+                .OrderByDescending(pi => pi.Date)
                 .ToListAsync();
         }
 
