@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Landing.API.Models
+﻿namespace Landing.API.Models
 {
 
     public class ProjectInfo
@@ -11,7 +9,7 @@ namespace Landing.API.Models
         public string Description { get; set; }
         public string[] Images { get; set; }
         public string[] Videos { get; set; }
-        public DateTimeOffset Date { get; set; }
+        public string Date { get; set; }
         public string[] Tags { get; set; }
         public string[] Tech { get; set; }
         public string[] Developers { get; set; }

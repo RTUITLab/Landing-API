@@ -13,8 +13,7 @@ namespace Landing.API.Formatting
         public ResponseProfile()
         {
             CreateMap<SourceCodeLink, SourceCodeLinkResponse>();
-            CreateMap<ProjectInfo, ProjectInfoResponse>()
-                .ForMember(pif => pif.Date, map => map.MapFrom(pi => pi.Date.ToString("dd/MM/yyyy")));
+            CreateMap<ProjectInfo, ProjectInfoResponse>();
         }
     }
 }
