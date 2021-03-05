@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using PreviewPanel.Models.Options;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -16,6 +17,8 @@ namespace PreviewPanel
         {
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
             builder.RootComponents.Add<App>("#app");
+
+            builder.Services.Configure<PreviewOptions>(o => builder.Configuration.GetSection(nameof(PreviewOptions)).Bind(o));
 
             builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
