@@ -36,19 +36,30 @@ variables:
 stages:
 - stage: build
   jobs:
-  - job: buildApi
+  - job: build
+    strategy:
+      matrix:
+        api:
+          cakeTask: 'PublishApi'
+          artifactPath: 'deploy/api'
+          artifactName: 'api-build'
+        admin:
+          cakeTask: 'PublishAdmin'
+          artifactPath: 'deploy/admin'
+          artifactName: 'admin-build'
+        preview:
+          cakeTask: 'PublishPreview'
+          artifactPath: 'deploy/preview'
+          artifactName: 'preview-build'
     steps:
     - task: Cake@2
       inputs:
         script: 'build.cake'
-        target: 'PublishAll'
+        target: $(cakeTask)
         verbosity: 'Verbose'
-    - publish: deploy/api
-      artifact: api-build
-    - publish: deploy/admin
-      artifact: admin-build
-    - publish: deploy/preview
-      artifact: preview-build
+    - publish: $(artifactPath)
+      artifact: $(artifactName)
+      displayName: publish $(artifactName)
 
 - stage: dockerImage
   condition: ${{variables.buildImage}}
