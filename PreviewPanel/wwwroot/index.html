@@ -10,10 +10,10 @@
     <link href="css/app.css" rel="stylesheet" />
     <link href="PreviewPanel.styles.css" rel="stylesheet" />
     <script>
-        window.sendMessage = async (data) => {
+        window.sendMessage = async (data, targetOrigin) => {
             let timer = setInterval(() => {
                 if (document.getElementById('window')) {
-                    document.getElementById('window').contentWindow.postMessage(data, 'http://localhost:3000');
+                    document.getElementById('window').contentWindow.postMessage(data, targetOrigin || window.location.origin);
                     clearInterval(timer);
                 }
             }, 500);
