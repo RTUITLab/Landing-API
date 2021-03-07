@@ -4,3 +4,5 @@ RUN mkdir /app
 COPY preview-build/wwwroot /app
 
 COPY nginx.conf /etc/nginx/nginx.conf
+
+CMD nginx
