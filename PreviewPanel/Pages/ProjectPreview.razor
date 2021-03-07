@@ -1,6 +1,6 @@
 @inject IJSRuntime JS;
-
-<iframe id="window" src="http://localhost:3000/example" class="project-preview" style="border: none; padding: 0;"></iframe>
+@inject Microsoft.Extensions.Options.IOptions<PreviewPanel.Models.Options.PreviewOptions> PreviewOptions
+<iframe id="window" src="@PreviewOptions.Value.IFrameUrl" class="project-preview" style="border: none; padding: 0;"></iframe>
 
 @if (string.IsNullOrEmpty(ProjectInfo.Title))
 {
