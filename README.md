@@ -12,6 +12,7 @@ Some api for landing, such as sincact as form.
   "GitHubOptinos": {
     "OAuthToken": "Personal OAuth token" // Place it in appsettings.Local.json while develop
   },
+  "SCRUB_GITHUB_PROJECTS": false | true, // Use scrub from GH, disabled in dev mode by default. Enabled for production by default
   "ScrubOptions": {
     "Delay": "01:00:00" // TimeSpan delay between scrubs
   }

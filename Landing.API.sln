@@ -24,9 +24,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Services", "Services\Servic
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdminPanel", "AdminPanel\AdminPanel.csproj", "{80068EF4-B5B4-496C-AE7E-2178116495F7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PreviewPanel", "PreviewPanel\PreviewPanel.csproj", "{477B874F-58CC-49D1-BB83-917A5A7A699F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PreviewPanel", "PreviewPanel\PreviewPanel.csproj", "{477B874F-58CC-49D1-BB83-917A5A7A699F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdminComponents", "AdminComponents\AdminComponents.csproj", "{18A51810-5146-4B6D-B2B5-464242708F3A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdminComponents", "AdminComponents\AdminComponents.csproj", "{18A51810-5146-4B6D-B2B5-464242708F3A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

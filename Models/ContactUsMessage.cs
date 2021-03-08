@@ -10,6 +10,7 @@ namespace Landing.API.Models
         public string Name { get; set; }
         public string Email { get; set; }
         public string Message { get; set; }
+        public DateTimeOffset? DoneTime { get; set; }
 
         public DateTime SendTime { get; set; }
         public string SenderIp { get; set; }
