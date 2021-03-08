@@ -1,4 +1,4 @@
-@inject IJSRuntime JS;
+@inject IJSRuntime JS
 @inject Microsoft.Extensions.Options.IOptions<PreviewPanel.Models.Options.PreviewOptions> PreviewOptions
 <iframe id="window" src="@PreviewOptions.Value.IFrameUrl" class="project-preview" style="border: none; padding: 0;"></iframe>
 
@@ -22,7 +22,7 @@
 
 @if (ProjectInfo.Videos == null || ProjectInfo.Videos.Length == 0)
 {
-    <h4>Videos</h4> 
+    <h4>Videos</h4>
     <div class="alert alert-warning" role="alert">Empty</div>
 }
 
@@ -53,4 +53,10 @@
 @code {
     [Parameter]
     public Landing.API.Models.ProjectInfo ProjectInfo { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await base.OnParametersSetAsync();
+        await JS.InvokeAsync<Landing.API.Models.ProjectInfo>("sendMessage", ProjectInfo, PreviewOptions.Value.TargetOrigin);
+    }
 }
