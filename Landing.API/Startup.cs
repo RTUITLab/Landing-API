@@ -45,7 +45,10 @@ namespace Landing.API
             services.AddMemoryCache();
 
             services.AddScoped<ProjectInfoService>();
-            services.AddHostedService<ScrubProjectsService>();
+            if (Configuration.GetValue<bool>("SCRUB_GITHUB_PROJECTS"))
+            {
+                services.AddHostedService<ScrubProjectsService>();
+            }
 
         }
 
