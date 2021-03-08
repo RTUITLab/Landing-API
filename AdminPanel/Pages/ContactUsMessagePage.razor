@@ -1,0 +1,72 @@
+﻿@page "/contactus/{MessageId:int}"
+
+@inherits OwningComponentBase<Landing.API.Database.LandingDbContext>
+@using Microsoft.EntityFrameworkCore
+
+
+<h3>ContactUsMessagePage</h3>
+
+@if (message == null)
+{
+    <p>Loadimg message @MessageId</p>
+}
+else
+{
+    <div class="row">
+
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Property</th>
+                    <th>Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Name</td>
+                    <td>@message.Name</td>
+                </tr>
+                <tr>
+                    <td>Email</td>
+                    <td>@message.Email</td>
+                </tr>
+                <tr>
+                    <td>Send time</td>
+                    <td>@message.SendTime</td>
+                </tr>
+                <tr>
+                    <td>Done</td>
+                    <td>@(message.DoneTime.HasValue ? message.DoneTime.Value : "not done")</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="row">
+        @message.Message
+    </div>
+    <div class="row">
+        @if(!message.DoneTime.HasValue)
+        {
+            <button class="btn btn-primary" @onclick="MarkAsDone">Mark as done</button>
+        }
+    </div>
+}
+
+@code {
+    [Parameter]
+    public int MessageId { get; set; }
+
+    private Landing.API.Models.ContactUsMessage message;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await base.OnParametersSetAsync();
+        message = await Service.ContactUsMessages
+            .SingleOrDefaultAsync(m => m.Id == MessageId);
+    }
+    private async Task MarkAsDone()
+    {
+        message.DoneTime = DateTimeOffset.UtcNow;
+        await Service.SaveChangesAsync();
+    }
+}
