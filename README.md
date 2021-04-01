@@ -40,12 +40,12 @@ docker-compose -f ./docker-compose.yml -f ./docker-compose.prod.yml config > sta
 
 ## Develop
 
-Restore tools
+1. Restore tools
 ```bash
 dotnet tool restore
 ```
 
-Add new migration
+2. Add new migration
 ```bash
 cd Database
 dotnet ef migrations add MIGRATION_NAME --startup-project ../Landing.API
@@ -59,4 +59,4 @@ dotnet ef migrations add MIGRATION_NAME --startup-project ../Landing.API
 cd PreviewPanel
 dotnet watch run --pathbase=/preview
 ```
-Go to [http://localhost:5004/prewiew](http://localhost:5004/prewiew)
+Go to [http://localhost:5004/preview](http://localhost:5004/preview)
