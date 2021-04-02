@@ -1,0 +1,62 @@
+@inject IJSRuntime JS
+@inject Microsoft.Extensions.Options.IOptions<PreviewPanel.Models.Options.PreviewOptions> PreviewOptions
+<iframe id="window" src="@PreviewOptions.Value.IFrameUrl" class="project-preview" style="border: none; padding: 0;"></iframe>
+
+@if (string.IsNullOrEmpty(ProjectInfo.Title))
+{
+    <h4>Title</h4>
+    <div class="alert alert-danger" role="alert">NULL</div>
+}
+
+@if (string.IsNullOrEmpty(ProjectInfo.Title))
+{
+    <h4>Description</h4>
+    <div class="alert alert-danger" role="alert">NULL</div>
+}
+
+@if (ProjectInfo.Images == null || ProjectInfo.Images.Length == 0)
+{
+    <h4>Images</h4>
+    <div class="alert alert-warning" role="alert">Empty</div>
+}
+
+@if (ProjectInfo.Videos == null || ProjectInfo.Videos.Length == 0)
+{
+    <h4>Videos</h4>
+    <div class="alert alert-warning" role="alert">Empty</div>
+}
+
+@if (ProjectInfo.Developers == null || ProjectInfo.Developers.Length == 0)
+{
+    <h4>Developers</h4>
+    <div class="alert alert-warning" role="alert">Empty</div>
+}
+
+@if (ProjectInfo.Tech == null || ProjectInfo.Tech.Length == 0)
+{
+    <h4>Tech</h4>
+    <div class="alert alert-warning" role="alert">Empty</div>
+}
+
+@if (string.IsNullOrEmpty(ProjectInfo.Site))
+{
+    <h4>Site</h4>
+    <div class="alert alert-warning" role="alert">Empty</div>
+}
+
+@if (ProjectInfo.SourceCode == null || ProjectInfo.SourceCode.Length == 0)
+{
+    <h4>SourceCode</h4>
+    <div class="alert alert-warning" role="alert">Empty</div>
+}
+
+@code {
+    [Parameter]
+    public Landing.API.Models.ProjectInfo ProjectInfo { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await base.OnParametersSetAsync();
+        await JS.InvokeAsync<Landing.API.Models.ProjectInfo>("sendMessage", ProjectInfo, PreviewOptions.Value.TargetOrigin);
+    }
+}

@@ -4,6 +4,14 @@ pool:
   vmImage: 'ubuntu-latest'
 
 variables:
+  ${{ if notIn(variables['Build.SourceBranchName'], 'master', 'develop') }}:
+    buildImage: false
+    deployService: false
+    deployEnvironment: 'no'
+    imageTags: 'no'
+    apiServiceName: 'no'
+    adminServiceName: 'no'
+    previewServiceName: 'no'
   ${{ if eq(variables['Build.SourceBranchName'], 'develop') }}:
     buildImage: true
     deployService: true
@@ -13,6 +21,7 @@ variables:
       develop
     apiServiceName: landing-develop_api
     adminServiceName: landing-develop_admin
+    previewServiceName: landing-develop_preview
   ${{ if eq(variables['Build.SourceBranchName'], 'master') }}:
     buildImage: true
     deployService: true
@@ -22,23 +31,35 @@ variables:
       latest
     apiServiceName: landing_api
     adminServiceName: landing_admin
+    previewServiceName: landing_preview
 
 stages:
 - stage: build
   jobs:
-  - job: buildApi
+  - job: build
+    strategy:
+      matrix:
+        api:
+          cakeTask: 'PublishApi'
+          artifactPath: 'deploy/api'
+          artifactName: 'api-build'
+        admin:
+          cakeTask: 'PublishAdmin'
+          artifactPath: 'deploy/admin'
+          artifactName: 'admin-build'
+        preview:
+          cakeTask: 'PublishPreview'
+          artifactPath: 'deploy/preview'
+          artifactName: 'preview-build'
     steps:
     - task: Cake@2
       inputs:
         script: 'build.cake'
-        target: 'PublishAll'
+        target: $(cakeTask)
         verbosity: 'Verbose'
-    - publish: deploy/api
-      artifact: api-build
-    - publish: deploy/admin
-      artifact: admin-build
-    - publish: deploy/preview
-      artifact: preview-build
+    - publish: $(artifactPath)
+      artifact: $(artifactName)
+      displayName: publish $(artifactName)
 
 - stage: dockerImage
   condition: ${{variables.buildImage}}
@@ -100,4 +121,19 @@ stages:
                 sshEndpoint: 'swarm manager'
                 runOptions: 'commands'
                 commands: 'docker service update --image rtuitlab/landing-admin:$(Build.BuildId) ${{variables.adminServiceName}}'
+                readyTimeout: '20000'
+  - deployment: DeployPreview
+    pool:
+      vmImage: 'ubuntu-latest'
+    environment: ${{variables.deployEnvironment}}
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            - download: none
+            - task: SSH@0
+              inputs:
+                sshEndpoint: 'swarm manager'
+                runOptions: 'commands'
+                commands: 'docker service update --image rtuitlab/landing-preview:$(Build.BuildId) ${{variables.previewServiceName}}'
                 readyTimeout: '20000'
