@@ -19,18 +19,15 @@ namespace Landing.API.Services
     {
         private readonly IServiceScopeFactory serviceScopeFactory;
         private readonly IOptions<ScrubOptions> scrubOptions;
-        private readonly IOptions<GitHubOptinos> githubOptions;
         private readonly ILogger<ScrubProjectsService> logger;
 
         public ScrubProjectsService(
             IServiceScopeFactory serviceScopeFactory,
             IOptions<ScrubOptions> scrubOptions,
-            IOptions<GitHubOptinos> githubOptions,
             ILogger<ScrubProjectsService> logger)
         {
             this.serviceScopeFactory = serviceScopeFactory;
             this.scrubOptions = scrubOptions;
-            this.githubOptions = githubOptions;
             this.logger = logger;
         }
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -40,15 +37,8 @@ namespace Landing.API.Services
                 try
                 {
                     stoppingToken.ThrowIfCancellationRequested();
-                    var client = new GitHubClient(new ProductHeaderValue(githubOptions.Value.ProductHeader));
-                    if (string.IsNullOrEmpty(githubOptions.Value.OAuthToken))
-                    {
-                        logger.LogWarning("Using github unauthenticated client with limits, please provide OAuthToken token in options");
-                    }
-                    else
-                    {
-                        client.Credentials = new Credentials(githubOptions.Value.OAuthToken);
-                    }
+                    using var scope = serviceScopeFactory.CreateScope();
+                    var client = scope.ServiceProvider.GetRequiredService<GitHubClient>();
                     await ScrubProjects(client, stoppingToken);
                 }
                 catch (OperationCanceledException)
@@ -59,6 +49,7 @@ namespace Landing.API.Services
                 {
                     logger.LogError(ex, "Unhandled error on github scrab");
                 }
+                logger.LogInformation($"Wait to new scrub: {scrubOptions.Value.Delay}");
                 await Task.Delay(scrubOptions.Value.Delay, stoppingToken);
             }
         }
@@ -76,6 +67,7 @@ namespace Landing.API.Services
                 {
                     using var scope = serviceScopeFactory.CreateScope();
                     var projectsService = scope.ServiceProvider.GetRequiredService<ProjectInfoService>();
+                    var repoHandlerService = scope.ServiceProvider.GetRequiredService<ScrubProjectInfoService>();
 
                     if (!rep.PushedAt.HasValue)
                     {
@@ -89,7 +81,7 @@ namespace Landing.API.Services
                         continue;
                     }
 
-                    var projectInfo = await HandleRepository(client, rep);
+                    var projectInfo = await repoHandlerService.ExtractInfoFromRepo(rep);
 
                     if (projectInfo != null)
                     {
@@ -100,44 +92,6 @@ namespace Landing.API.Services
                 {
                     logger.LogWarning($"repository {rep.FullName} is empty");
                 }
-            }
-        }
-
-        private async Task<ProjectInfo> HandleRepository(GitHubClient client, Repository repo)
-        {
-
-
-            var br = repo.DefaultBranch;
-
-            var mainReference = await client.Git.Reference.Get(repo.Id, $"refs/heads/{br}");
-
-            var tree = await client.Git.Tree.Get(repo.Id, mainReference.Ref);
-
-            var targetFile = tree.Tree.SingleOrDefault(f => f.Path == "LANDING.md");
-            if (targetFile is null)
-            {
-                logger.LogInformation($"Skip {repo.FullName} no LANDING file");
-                return null;
-            }
-            var content = await client.Git.Blob.Get(repo.Id, targetFile.Sha);
-            var fileContent = content.Content;
-
-            if (content.Encoding == EncodingType.Base64)
-            {
-                fileContent = System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(content.Content));
-            }
-
-            try
-            {
-                var info = await new LandingFileParser(repo.FullName, repo.DefaultBranch).ParseAsync(fileContent);
-                info.Date = repo.UpdatedAt.ToString("dd/MM/yyyy");
-                info.CommitSha = mainReference.Object.Sha;
-                return info;
-            }
-            catch (Exception ex)
-            {
-                logger.LogWarning(ex, $"Can't parse project file in {repo.FullName} {repo.DefaultBranch} {mainReference.Ref}");
-                return null;
             }
         }
     }
