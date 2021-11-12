@@ -16,6 +16,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Octokit;
 using RTUITLab.AspNetCore.Configure.Configure;
 using RTUITLab.AspNetCore.Configure.Invokations;
 
@@ -34,6 +36,7 @@ namespace Landing.API
         {
             services.Configure<GitHubOptinos>(Configuration.GetSection(nameof(GitHubOptinos)));
             services.Configure<ScrubOptions>(Configuration.GetSection(nameof(ScrubOptions)));
+            services.Configure<LandingOptions>(Configuration.GetSection(nameof(LandingOptions)));
 
             services.AddControllers();
 
@@ -45,6 +48,25 @@ namespace Landing.API
             services.AddMemoryCache();
 
             services.AddScoped<ProjectInfoService>();
+            services.AddScoped<ScrubProjectInfoService>();
+
+            services.AddScoped(sp =>
+            {
+                var githubOptions = sp.GetRequiredService<IOptions<GitHubOptinos>>();
+                var logger = sp.GetRequiredService<ILoggerFactory>().CreateLogger("GitHubClientFactory");
+
+                var client = new GitHubClient(new ProductHeaderValue(githubOptions.Value.ProductHeader));
+                if (string.IsNullOrEmpty(githubOptions.Value.OAuthToken))
+                {
+                    logger.LogWarning("Using github unauthenticated client with limits, please provide OAuthToken token in options");
+                }
+                else
+                {
+                    client.Credentials = new Credentials(githubOptions.Value.OAuthToken);
+                }
+                return client;
+            });
+
             if (Configuration.GetValue<bool>("SCRUB_GITHUB_PROJECTS"))
             {
                 services.AddHostedService<ScrubProjectsService>();

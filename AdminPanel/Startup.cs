@@ -1,4 +1,6 @@
+using AdminPanel.Services;
 using Landing.API.Database;
+using Landing.API.Models;
 using Landing.API.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Components;
@@ -7,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,6 +30,15 @@ namespace AdminPanel
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            services.Configure<LandingOptions>(Configuration.GetSection(nameof(LandingOptions)));
+
+            services.AddHttpClient<ApiInteractService>((sp, client) =>
+            {
+                var options = sp.GetRequiredService<IOptions<LandingOptions>>();
+                client.BaseAddress = new Uri(options.Value.ApiBaseAddress);
+                client.DefaultRequestHeaders.Add("Authorization", options.Value.AdminPanelAccessToken);
+            });
+
             services.AddRazorPages();
             services.AddServerSideBlazor();
 
