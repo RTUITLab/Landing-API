@@ -1,6 +1,7 @@
 ﻿using Landing.API.Database;
 using Landing.API.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,10 +13,14 @@ namespace Landing.API.Services
     public class ProjectInfoService
     {
         private readonly LandingDbContext dbContext;
+        private readonly ILogger<ProjectInfoService> logger;
 
-        public ProjectInfoService(LandingDbContext dbContext)
+        public ProjectInfoService(
+            LandingDbContext dbContext,
+            ILogger<ProjectInfoService> logger)
         {
             this.dbContext = dbContext;
+            this.logger = logger;
         }
 
         public async Task<List<ProjectInfo>> GetPublicProjectInfos()
@@ -44,24 +49,37 @@ namespace Landing.API.Services
                 .Where(pi => pi.Repo == repo)
                 .AsNoTracking()
                 .ToListAsync();
+
+            var published = currentRepos.SingleOrDefault(i => i.IsPublic);
             var hidden = currentRepos.SingleOrDefault(i => !i.IsPublic);
-            if (hidden != null)
+
+            if (published != null && published.Info.EqualsWithoutCommitAndDate(projectInfo))
+            {
+                logger.LogInformation($"New commit with same info, update commit and date");
+                published.Commit = published.Info.CommitSha = commitSha;
+                published.CommitDate = commitDate;
+                published.Info = projectInfo;
+                dbContext.Update(published);
+            }
+            else if (hidden != null)
             {
                 hidden.Commit = commitSha;
                 hidden.CommitDate = commitDate;
+                hidden.Info = projectInfo;
                 dbContext.Update(hidden);
-            } else
+            }
+            else
             {
                 hidden = new ProjectInfoRecord
                 {
                     Repo = repo,
                     Commit = commitSha,
                     CommitDate = commitDate,
-                    IsPublic = false
+                    IsPublic = false,
+                    Info = projectInfo
                 };
                 dbContext.Add(hidden);
             }
-            hidden.Info = projectInfo;
             await dbContext.SaveChangesAsync();
         }
 
