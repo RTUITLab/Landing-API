@@ -1,10 +1,14 @@
 ﻿@page "/projects/{Repo}"
+@using AdminPanel.Services
 @using Landing.API.Models
 @using Landing.API.Services
 @using Microsoft.EntityFrameworkCore
 
 @inherits OwningComponentBase<ProjectInfoService>
+@inject ApiInteractService ApiInteractService
+@inject IJSRuntime JS
 <h3>Edit @Repo</h3>
+<button class="btn btn-primary" @onclick="() => UpdateIngoAboutProject()">Update info about project</button>
 
 
 <div class="row">
@@ -48,12 +52,43 @@
     protected override async Task OnParametersSetAsync()
     {
         await base.OnParametersSetAsync();
-        (currentInfo, newInfo) = await Service.GetRecordsForRepo(Repo);
+        await LoadData();
+
     }
 
     private async Task SubmitVersion(int id)
     {
         await Service.PublishInfo(Repo, id);
-        (currentInfo, newInfo) = await Service.GetRecordsForRepo(Repo);
+        await LoadData();
     }
+
+    private async Task UpdateIngoAboutProject()
+    {
+        try
+        {
+            var result = await ApiInteractService.UpdateRepoInfo(Repo);
+            if (!result)
+            {
+                throw new Exception("Incorrect result");
+            }
+        }
+        catch
+        {
+            await JS.InvokeVoidAsync("alert", "Can't update project info, please check logs");
+        }
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        try
+        {
+            (currentInfo, newInfo) = await Service.GetRecordsForRepo(Repo);
+        }
+        catch
+        {
+            await JS.InvokeVoidAsync("alert", "Can't get info about project, please check logs");
+        }
+    }
+
 }

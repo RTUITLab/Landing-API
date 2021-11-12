@@ -6,6 +6,7 @@ services:
       GitHubOptinos__OAuthToken: ${GITHUB_OAUTH_TOKEN?Place GITHUB_OAUTH_TOKEN for production}
       ScrubOptions__Delay: 00:30:00
       ConnectionStrings__POSTGRES: ${POSTGRES_DATABASE_CONNECTION_STRING?Place connection string to database POSTGRES_DATABASE_CONNECTION_STRING}
+      LandingOptions__AdminPanelAccessToken: ${ADMIN_API_SECRET_TOKEN?Place secret token ADMIN_API_SECRET_TOKEN}
     deploy:
       resources:
           limits:
@@ -19,6 +20,7 @@ services:
   admin:
     environment:
       ConnectionStrings__POSTGRES: ${POSTGRES_DATABASE_CONNECTION_STRING?Place connection string to database POSTGRES_DATABASE_CONNECTION_STRING}
+      LandingOptions__AdminPanelAccessToken: ${ADMIN_API_SECRET_TOKEN?Place secret token ADMIN_API_SECRET_TOKEN}
     deploy:
       resources:
           limits:

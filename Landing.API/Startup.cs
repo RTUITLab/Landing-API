@@ -36,6 +36,7 @@ namespace Landing.API
         {
             services.Configure<GitHubOptinos>(Configuration.GetSection(nameof(GitHubOptinos)));
             services.Configure<ScrubOptions>(Configuration.GetSection(nameof(ScrubOptions)));
+            services.Configure<LandingOptions>(Configuration.GetSection(nameof(LandingOptions)));
 
             services.AddControllers();
 

@@ -26,8 +26,12 @@ Some api for landing, such as sincact as form.
 ```bash
 # powershell
 $Env:GITHUB_OAUTH_TOKEN="abcdefg..."
+$Env:POSTGRES_DATABASE_CONNECTION_STRING="abcdefg..."
+$Env:ADMIN_API_SECRET_TOKEN="abcdefg..."
 # bash
 export GITHUB_OAUTH_TOKEN="abcdefg..."
+export POSTGRES_DATABASE_CONNECTION_STRING="abcdefg..."g
+export ADMIN_API_SECRET_TOKEN="abcdefg..."
 ```
 
 2. Generate stack file

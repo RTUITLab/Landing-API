@@ -39,7 +39,8 @@ namespace Landing.API.Services
                     stoppingToken.ThrowIfCancellationRequested();
                     using var scope = serviceScopeFactory.CreateScope();
                     var client = scope.ServiceProvider.GetRequiredService<GitHubClient>();
-                    await ScrubProjects(client, stoppingToken);
+                    var scrubProjectInfoService = scope.ServiceProvider.GetRequiredService<ScrubProjectInfoService>();
+                    await ScrubProjects(client, scrubProjectInfoService, stoppingToken);
                 }
                 catch (OperationCanceledException)
                 {
@@ -54,44 +55,15 @@ namespace Landing.API.Services
             }
         }
 
-        private async Task ScrubProjects(GitHubClient client, CancellationToken cancellationToken)
+        private async Task ScrubProjects(GitHubClient client, ScrubProjectInfoService scrubProjectInfoService, CancellationToken cancellationToken)
         {
             int i = 0;
 
             var reps = await client.Repository.GetAllForOrg("rtuitlab");
             foreach (var rep in reps)
             {
-                cancellationToken.ThrowIfCancellationRequested();
                 logger.LogInformation($"{i++}/{reps.Count}: {rep.FullName}");
-                try
-                {
-                    using var scope = serviceScopeFactory.CreateScope();
-                    var projectsService = scope.ServiceProvider.GetRequiredService<ProjectInfoService>();
-                    var repoHandlerService = scope.ServiceProvider.GetRequiredService<ScrubProjectInfoService>();
-
-                    if (!rep.PushedAt.HasValue)
-                    {
-                        logger.LogInformation($"Skip {rep.FullName} no PushetAt property");
-                        continue;
-                    }
-
-                    if (!await projectsService.CommitIsActual(rep.FullName, rep.PushedAt ?? DateTime.MinValue))
-                    {
-                        logger.LogInformation($"Skip {rep.FullName} too old commit");
-                        continue;
-                    }
-
-                    var projectInfo = await repoHandlerService.ExtractInfoFromRepo(rep);
-
-                    if (projectInfo != null)
-                    {
-                        await projectsService.AddProjectInfo(rep.FullName, projectInfo.CommitSha, rep.PushedAt.Value, projectInfo);
-                    }
-                }
-                catch (ApiException ex) when (ex.Message?.Contains("is empty") == true)
-                {
-                    logger.LogWarning($"repository {rep.FullName} is empty");
-                }
+                await scrubProjectInfoService.HandleRepo(rep, cancellationToken);
             }
         }
     }

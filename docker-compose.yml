@@ -5,5 +5,7 @@ services:
       image: rtuitlab/landing-api
     admin:
       image: rtuitlab/landing-admin
+      environment:
+        LandingOptions__ApiBaseAddress: 'http://api:5001'
     preview:
       image: rtuitlab/landing-preview
