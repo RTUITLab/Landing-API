@@ -20,18 +20,37 @@ namespace Landing.API.Models
         public string Site { get; set; }
         public SourceCodeLink[] SourceCode { get; set; }
 
+        //TODO: Save date in DateTimeOffset instead string
+        [Obsolete("Save date in DateTimeOffset instead string")]
+        public void SetDate(DateTimeOffset date)
+        {
+            Date = date.ToString("dd/MM/yyyy");
+        }
+
         public bool EqualsWithoutCommitAndDate(ProjectInfo info)
         {
-            bool current = Title == info.Title;
-            current = Description == info.Description;
-            current = Images.SequenceEqual(info.Images);
-            current = Videos.SequenceEqual(info.Videos);
-            current = Tags.SequenceEqual(info.Tags);
-            current = Tech.SequenceEqual(info.Tech);
-            current = Developers.SequenceEqual(info.Developers);
-            current = Site == info.Site;
-            current = SourceCode.SequenceEqual(info.SourceCode);
-            return current;
+            return Title == info.Title &&
+                   Description == info.Description &&
+                   Site == info.Site &&
+                   CompareSequences(Images, info.Images) &&
+                   CompareSequences(Videos, info.Videos) &&
+                   CompareSequences(Tags, info.Tags) &&
+                   CompareSequences(Tech, info.Tech) &&
+                   CompareSequences(Developers, info.Developers) &&
+                   CompareSequences(SourceCode, info.SourceCode);
+        }
+        private bool CompareSequences<T>(IEnumerable<T> first, IEnumerable<T> second)
+        {
+            if (first == null && second == null)
+            {
+                return true;
+            }
+            // One is null
+            if (first == null ^ second == null)
+            {
+                return false;
+            }
+            return first.SequenceEqual(second);
         }
     }
     public class SourceCodeLink
